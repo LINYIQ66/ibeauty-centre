@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I BEAUTY CENTRE | 财务管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #c41e3a;
+            --primary-dark: #a01830;
+            --success: #25d366;
+            --warning: #f59e0b;
+            --danger: #dc2626;
+            --info: #0088cc;
+            --bg: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --card: #1a1a2e;
+            --sidebar: #1a1a2e;
+            --text: #e8e8f0;
+            --text-light: #9a9ab0;
+            --text-muted: #6a6a80;
+            --border: #2a2a3e;
+            --input-bg: #252540;
+            --hover-bg: #252540;
+            --primary-rgb: 196, 30, 58;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .top-nav-logo {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .top-nav-logo span { color: var(--primary); }
+
+        .back-link {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: var(--hover-bg);
+            color: var(--text);
+        }
+
+        .top-nav-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-left: 8px;
+        }
+
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .refresh-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: var(--hover-bg);
+            color: var(--text);
+        }
+
+        .last-update {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+
+        /* Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(var(--primary-rgb), 0.3);
+            transform: translateY(-1px);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .stat-card .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .stat-card .stat-value.revenue { color: var(--success); }
+        .stat-card .stat-value.expense { color: var(--danger); }
+        .stat-card .stat-value.profit { color: var(--info); }
+        .stat-card .stat-value.pending { color: var(--warning); }
+
+        .stat-card .stat-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Tab Navigation */
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--card-bg);
+            border-radius: 12px 12px 0 0;
+            padding: 0 4px;
+        }
+
+        .tab-btn {
+            padding: 14px 24px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            position: relative;
+            font-family: inherit;
+        }
+
+        .tab-btn:hover {
+            color: var(--text);
+            background: var(--hover-bg);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-btn .tab-badge {
+            background: var(--primary);
+            color: white;
+            font-size: 11px;
+            padding: 1px 7px;
+            border-radius: 10px;
+            margin-left: 6px;
+            font-weight: 600;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .card-body {
+            padding: 0;
+            overflow-x: auto;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 9px 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-success:hover { background: #1ebc57; }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        .btn-danger:hover { background: #b91c1c; }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        .btn-warning:hover { background: #d97706; }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-light);
+        }
+        .btn-outline:hover {
+            background: var(--hover-bg);
+            color: var(--text);
+        }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 12px;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table thead th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .data-table tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table .empty-row td {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Status Badges */
+        .badge {
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success { background: rgba(37,211,102,0.15); color: var(--success); }
+        .badge-warning { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .badge-danger { background: rgba(220,38,38,0.15); color: var(--danger); }
+        .badge-info { background: rgba(0,136,204,0.15); color: var(--info); }
+        .badge-primary { background: rgba(196,30,58,0.15); color: var(--primary); }
+
+        /* Section Visibility */
+        .tab-section { display: none; }
+        .tab-section.active { display: block; }
+
+        /* Charts / Analytics */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .analytics-grid { grid-template-columns: 1fr; }
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .chart-card h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bar-label {
+            font-size: 13px;
+            color: var(--text-light);
+            width: 120px;
+            flex-shrink: 0;
+            text-align: right;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 28px;
+            background: var(--hover-bg);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.6s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            min-width: 0;
+        }
+
+        .bar-fill.primary { background: linear-gradient(90deg, var(--primary), #e04055); }
+        .bar-fill.green { background: linear-gradient(90deg, #1a8a44, var(--success)); }
+        .bar-fill.blue { background: linear-gradient(90deg, #0055aa, var(--info)); }
+        .bar-fill.amber { background: linear-gradient(90deg, #b45309, var(--warning)); }
+        .bar-fill.purple { background: linear-gradient(90deg, #6d28d9, #8b5cf6); }
+        .bar-fill.teal { background: linear-gradient(90deg, #0f766e, #14b8a6); }
+        .bar-fill.pink { background: linear-gradient(90deg, #9d174d, #ec4899); }
+        .bar-fill.indigo { background: linear-gradient(90deg, #3730a3, #6366f1); }
+
+        .bar-value {
+            font-size: 12px;
+            color: var(--text-muted);
+            width: 80px;
+            flex-shrink: 0;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .payment-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .payment-item {
+            background: var(--hover-bg);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .payment-item .pay-icon { font-size: 24px; margin-bottom: 8px; }
+        .payment-item .pay-method { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+        .payment-item .pay-amount { font-size: 18px; font-weight: 700; color: var(--text); }
+        .payment-item .pay-percent { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+        /* Commissions Section */
+        .commission-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .commission-layout { grid-template-columns: 1fr; }
+        }
+
+        .employee-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .employee-selector label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .form-select {
+            padding: 9px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            color: var(--text);
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-select option {
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        /* Rules Table */
+        .rules-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .rules-table th {
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .rules-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .rules-table tr:hover td {
+            background: var(--hover-bg);
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            transform: translateX(120%);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.success { background: #065f46; border-left: 4px solid var(--success); color: #d1fae5; }
+        .toast.error { background: #7f1d1d; border-left: 4px solid var(--danger); color: #fecaca; }
+        .toast.warning { background: #78350f; border-left: 4px solid var(--warning); color: #fef3c7; }
+        .toast.info { background: #1e3a5f; border-left: 4px solid var(--info); color: #bfdbfe; }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--text-muted);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* Commission Summary */
+        .commission-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .commission-summary-item {
+            background: var(--hover-bg);
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .commission-summary-item .cs-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .commission-summary-item .cs-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        /* Commission Status Toggle */
+        .status-toggle {
+            cursor: pointer;
+            padding: 2px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .top-nav { padding: 0 16px; }
+            .container { padding: 16px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .tab-btn { padding: 12px 14px; font-size: 13px; }
+            .header-actions { flex-wrap: wrap; }
+            .bar-label { width: 80px; font-size: 12px; }
+            .bar-value { width: 60px; }
+            .commission-layout { grid-template-columns: 1fr; }
+            .top-nav-title { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .tab-bar { overflow-x: auto; }
+            .data-table { font-size: 12px; }
+            .data-table th, .data-table td { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="top-nav-left">
+            <a href="admin.html" class="back-link">⬅ 返回管理后台</a>
+            <div class="top-nav-logo">I BEAUTY <span>CENTRE</span></div>
+            <span class="top-nav-title">| 财务管理</span>
+        </div>
+        <div class="top-nav-right">
+            <span class="last-update" id="lastUpdate">最后更新：刚刚</span>
+            <button class="refresh-btn" onclick="loadAllData()">🔄 刷新</button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Stats Dashboard -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-label">今日收入</div>
+                <div class="stat-value revenue" id="statTodayRevenue">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-label">本月收入</div>
+                <div class="stat-value revenue" id="statMonthRevenue">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-label">总收入</div>
+                <div class="stat-value revenue" id="statTotalRevenue">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💸</div>
+                <div class="stat-label">总支出</div>
+                <div class="stat-value expense" id="statTotalExpenses">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">净利润</div>
+                <div class="stat-value profit" id="statNetProfit">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-label">本月净利润</div>
+                <div class="stat-value profit" id="statMonthNetProfit">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-label">平均交易额</div>
+                <div class="stat-value" id="statAvgTransaction">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-label">待处理提成</div>
+                <div class="stat-value pending" id="statPendingCommissions">$0</div>
+            </div>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('transactions')" id="tabTransactions">
+                📋 收入记录 <span class="tab-badge" id="transCount">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('expenses')" id="tabExpenses">
+                💳 支出管理 <span class="tab-badge" id="expCount">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('commissions')" id="tabCommissions">
+                🏆 员工提成
+            </button>
+            <button class="tab-btn" onclick="switchTab('analytics')" id="tabAnalytics">
+                📊 收入分析
+            </button>
+        </div>
+
+        <!-- ==================== TRANSACTIONS TAB ==================== -->
+        <div class="tab-section active" id="sectionTransactions">
+            <div class="card">
+                <div class="card-header">
+                    <h3>📋 收入记录</h3>
+                    <div class="header-actions">
+                        <button class="btn btn-outline btn-sm" onclick="exportTransactionsCSV()">📥 导出 CSV</button>
+                        <button class="btn btn-primary btn-sm" onclick="promptAddTransaction()">➕ 新增</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="data-table" id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>客户</th>
+                                <th>电话</th>
+                                <th>服务</th>
+                                <th>员工</th>
+                                <th>金额</th>
+                                <th>支付方式</th>
+                                <th>状态</th>
+                                <th>备注</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsBody">
+                            <tr class="empty-row">
+                                <td colspan="10">
+                                    <span class="loading-spinner"></span> 加载中...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== EXPENSES TAB ==================== -->
+        <div class="tab-section" id="sectionExpenses">
+            <div class="card">
+                <div class="card-header">
+                    <h3>💳 支出管理</h3>
+                    <div class="header-actions">
+                        <button class="btn btn-primary btn-sm" onclick="promptAddExpense()">➕ 新增支出</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="data-table" id="expensesTable">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>类别</th>
+                                <th>描述</th>
+                                <th>金额</th>
+                                <th>支付方式</th>
+                                <th>备注</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesBody">
+                            <tr class="empty-row">
+                                <td colspan="7">
+                                    <span class="loading-spinner"></span> 加载中...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== COMMISSIONS TAB ==================== -->
+        <div class="tab-section" id="sectionCommissions">
+            <div class="commission-layout">
+                <!-- Left: Per-employee breakdown -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>🏆 员工提成明细</h3>
+                            <div class="header-actions">
+                                <button class="btn btn-primary btn-sm" onclick="promptAddCommission()">➕ 添加提成</button>
+                            </div>
+                        </div>
+                        <div class="card-body" style="padding: 16px;">
+                            <div class="employee-selector">
+                                <label>选择员工：</label>
+                                <select class="form-select" id="commissionEmployeeSelect" onchange="loadEmployeeCommissions()">
+                                    <option value="">-- 请选择员工 --</option>
+                                </select>
+                            </div>
+                            <div id="commissionSummary" style="display:none;" class="commission-summary"></div>
+                            <table class="data-table" id="commissionsTable">
+                                <thead>
+                                    <tr>
+                                        <th>日期</th>
+                                        <th>服务</th>
+                                        <th>金额</th>
+                                        <th>提成率</th>
+                                        <th>提成额</th>
+                                        <th>状态</th>
+                                        <th>备注</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="commissionsBody">
+                                    <tr class="empty-row">
+                                        <td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);font-size:14px;">
+                                            请先选择员工查看提成明细
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Commission Rules -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>📋 提成规则</h3>
+                            <div class="header-actions">
+                                <button class="btn btn-primary btn-sm" onclick="promptAddCommissionRule()">➕ 添加规则</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <table class="rules-table" id="rulesTable">
+                                <thead>
+                                    <tr>
+                                        <th>服务</th>
+                                        <th>类型</th>
+                                        <th>提成</th>
+                                        <th>保底</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rulesBody">
+                                    <tr class="empty-row">
+                                        <td colspan="5">
+                                            <span class="loading-spinner"></span> 加载中...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ANALYTICS TAB ==================== -->
+        <div class="tab-section" id="sectionAnalytics">
+            <div class="analytics-grid">
+                <!-- Revenue by Service -->
+                <div class="chart-card">
+                    <h4>📊 服务类别收入分析</h4>
+                    <div class="bar-chart" id="serviceRevenueChart">
+                        <div style="text-align:center;padding:40px;color:var(--text-muted);">
+                            <span class="loading-spinner"></span> 加载中...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revenue by Employee -->
+                <div class="chart-card">
+                    <h4>👩 员工业绩排名</h4>
+                    <div class="bar-chart" id="employeeRevenueChart">
+                        <div style="text-align:center;padding:40px;color:var(--text-muted);">
+                            <span class="loading-spinner"></span> 加载中...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method Breakdown -->
+                <div class="chart-card">
+                    <h4>💳 支付方式分析</h4>
+                    <div class="payment-breakdown" id="paymentBreakdown">
+                        <div style="text-align:center;padding:40px;color:var(--text-muted);grid-column:1/-1;">
+                            <span class="loading-spinner"></span> 加载中...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expense Categories -->
+                <div class="chart-card">
+                    <h4>📉 支出类别分析</h4>
+                    <div class="bar-chart" id="expenseCategoryChart">
+                        <div style="text-align:center;padding:40px;color:var(--text-muted);">
+                            <span class="loading-spinner"></span> 加载中...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        var API_BASE = 'http://45.76.153.191:8082/api';
+
+        // ========== UTILITY FUNCTIONS ==========
+        function formatCurrency(amount) {
+            var num = parseFloat(amount) || 0;
+            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            var d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            var year = d.getFullYear();
+            var month = ('0' + (d.getMonth() + 1)).slice(-2);
+            var day = ('0' + d.getDate()).slice(-2);
+            return year + '-' + month + '-' + day;
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            var d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            var year = d.getFullYear();
+            var month = ('0' + (d.getMonth() + 1)).slice(-2);
+            var day = ('0' + d.getDate()).slice(-2);
+            var hour = ('0' + d.getHours()).slice(-2);
+            var min = ('0' + d.getMinutes()).slice(-2);
+            return year + '-' + month + '-' + day + ' ' + hour + ':' + min;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function showToast(message, type) {
+            type = type || 'info';
+            var container = document.getElementById('toastContainer');
+            var toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            var icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+            toast.innerHTML = '<span>' + (icons[type] || 'ℹ️') + '</span> ' + escapeHtml(message);
+            container.appendChild(toast);
+            setTimeout(function () {
+                toast.classList.add('show');
+            }, 10);
+            setTimeout(function () {
+                toast.classList.remove('show');
+                setTimeout(function () { toast.remove(); }, 300);
+            }, 3000);
+        }
+
+        function showLoading(el, msg) {
+            msg = msg || '加载中...';
+            el.innerHTML = '<tr class="empty-row"><td colspan="99"><span class="loading-spinner"></span> ' + msg + '</td></tr>';
+        }
+
+        // ========== TAB SWITCHING ==========
+        function switchTab(tabName) {
+            var tabs = ['transactions', 'expenses', 'commissions', 'analytics'];
+            for (var i = 0; i < tabs.length; i++) {
+                var t = tabs[i];
+                document.getElementById('section' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('active');
+                document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('active');
+            }
+            var sectionId = 'section' + tabName.charAt(0).toUpperCase() + tabName.slice(1);
+            var tabId = 'tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1);
+            document.getElementById(sectionId).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+
+            // Load commissions data when tab is opened
+            if (tabName === 'commissions') {
+                loadEmployees();
+                loadCommissionRules();
+            }
+            if (tabName === 'analytics') {
+                loadAnalytics();
+            }
+        }
+
+        // ========== API HELPERS ==========
+        function apiFetch(url, options) {
+            options = options || {};
+            options.headers = options.headers || {};
+            options.headers['Accept'] = 'application/json';
+            if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
+                options.headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(options.body);
+            }
+            return fetch(url, options)
+                .then(function (res) {
+                    if (!res.ok) {
+                        return res.text().then(function (text) {
+                            throw new Error('HTTP ' + res.status + ': ' + text);
+                        });
+                    }
+                    return res.json();
+                });
+        }
+
+        // ========== LOAD ALL DATA ==========
+        function loadAllData() {
+            loadFinanceStats();
+            loadTransactions();
+            loadExpenses();
+            document.getElementById('lastUpdate').textContent = '最后更新：' + new Date().toLocaleTimeString('zh-CN');
+        }
+
+        // ========== FINANCE STATS ==========
+        function loadFinanceStats() {
+            apiFetch(API_BASE + '/finance-stats')
+                .then(function (data) {
+                    document.getElementById('statTodayRevenue').textContent = formatCurrency(data.today_revenue || 0);
+                    document.getElementById('statMonthRevenue').textContent = formatCurrency(data.month_revenue || 0);
+                    document.getElementById('statTotalRevenue').textContent = formatCurrency(data.total_revenue || 0);
+                    document.getElementById('statTotalExpenses').textContent = formatCurrency(data.total_expenses || 0);
+                    document.getElementById('statNetProfit').textContent = formatCurrency(data.net_profit || 0);
+                    document.getElementById('statMonthNetProfit').textContent = formatCurrency(data.month_net_profit || 0);
+                    document.getElementById('statAvgTransaction').textContent = formatCurrency(data.avg_transaction || 0);
+                    document.getElementById('statPendingCommissions').textContent = formatCurrency(data.pending_commissions || 0);
+                    document.getElementById('transCount').textContent = data.transaction_count || 0;
+                    document.getElementById('expCount').textContent = data.expense_count || 0;
+                })
+                .catch(function (err) {
+                    console.error('Stats error:', err);
+                });
+        }
+
+        // ========== TRANSACTIONS ==========
+        function loadTransactions() {
+            var tbody = document.getElementById('transactionsBody');
+            apiFetch(API_BASE + '/transactions')
+                .then(function (data) {
+                    var txns = data.transactions || [];
+                    if (txns.length === 0) {
+                        tbody.innerHTML = '<tr class="empty-row"><td colspan="10">📭 暂无收入记录</td></tr>';
+                        return;
+                    }
+                    var html = '';
+                    for (var i = 0; i < txns.length; i++) {
+                        var t = txns[i];
+                        var statusClass = 'badge-info';
+                        var statusText = '已完成';
+                        if (t.status === 'pending') {
+                            statusClass = 'badge-warning';
+                            statusText = '待处理';
+                        } else if (t.status === 'completed') {
+                            statusClass = 'badge-success';
+                            statusText = '已完成';
+                        } else if (t.status === 'cancelled') {
+                            statusClass = 'badge-danger';
+                            statusText = '已取消';
+                        }
+                        html += '<tr>' +
+                            '<td>' + escapeHtml(formatDate(t.date)) + '</td>' +
+                            '<td><strong>' + escapeHtml(t.client_name || '-') + '</strong></td>' +
+                            '<td>' + escapeHtml(t.client_phone || '-') + '</td>' +
+                            '<td>' + escapeHtml(t.service_name || '-') + '</td>' +
+                            '<td>' + escapeHtml(t.employee_name || '-') + '</td>' +
+                            '<td><strong>' + formatCurrency(t.amount) + '</strong></td>' +
+                            '<td>' + escapeHtml(t.payment_method || '-') + '</td>' +
+                            '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>' +
+                            '<td>' + escapeHtml(t.notes || '-') + '</td>' +
+                            '<td>' +
+                                '<button class="btn btn-outline btn-sm" onclick="editTransaction(' + t.id + ')" title="编辑">✏️</button> ' +
+                                '<button class="btn btn-warning btn-sm" onclick="toggleTransactionStatus(' + t.id + ')" title="切换状态">🔄</button> ' +
+                                '<button class="btn btn-danger btn-sm" onclick="deleteTransaction(' + t.id + ')" title="删除">🗑️</button>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                    tbody.innerHTML = html;
+                })
+                .catch(function (err) {
+                    tbody.innerHTML = '<tr class="empty-row"><td colspan="10">❌ 加载失败: ' + escapeHtml(err.message) + '</td></tr>';
+                });
+        }
+
+        function promptAddTransaction() {
+            var clientName = prompt('请输入客户姓名：');
+            if (!clientName) return;
+            var clientPhone = prompt('请输入客户电话：');
+            if (!clientPhone) return;
+            var serviceName = prompt('请输入服务名称：');
+            if (!serviceName) return;
+            var employeeName = prompt('请输入员工姓名：');
+            var amount = prompt('请输入金额 (SGD)：');
+            if (!amount || isNaN(parseFloat(amount))) { showToast('请输入有效金额', 'error'); return; }
+            var paymentMethod = prompt('请输入支付方式 (现金/Credit Card/PayNow/PayLah)：');
+            if (!paymentMethod) paymentMethod = '现金';
+            var status = prompt('请输入状态 (completed/pending)：', 'completed');
+            if (!status) status = 'completed';
+            var notes = prompt('请输入备注（可选）：');
+
+            var data = {
+                client_name: clientName,
+                client_phone: clientPhone,
+                service_name: serviceName,
+                employee_name: employeeName || '',
+                amount: parseFloat(amount),
+                payment_method: paymentMethod,
+                status: status,
+                notes: notes || ''
+            };
+
+            apiFetch(API_BASE + '/transactions', {
+                method: 'POST',
+                body: data
+            })
+            .then(function () {
+                showToast('✅ 收入记录已添加', 'success');
+                loadAllData();
+            })
+            .catch(function (err) {
+                showToast('❌ 添加失败: ' + err.message, 'error');
+            });
+        }
+
+        function editTransaction(id) {
+            var newAmount = prompt('请输入新金额 (SGD)：');
+            if (newAmount && isNaN(parseFloat(newAmount))) { showToast('请输入有效金额', 'error'); return; }
+            var newStatus = prompt('请输入新状态 (completed/pending/cancelled)：');
+            var newNotes = prompt('请输入新备注：');
+
+            var data = {};
+            if (newAmount) data.amount = parseFloat(newAmount);
+            if (newStatus) data.status = newStatus;
+            if (newNotes) data.notes = newNotes;
+
+            if (Object.keys(data).length === 0) { showToast('未做任何修改', 'warning'); return; }
+
+            apiFetch(API_BASE + '/transactions/' + id, {
+                method: 'PATCH',
+                body: data
+            })
+            .then(function () {
+                showToast('✅ 收入记录已更新', 'success');
+                loadAllData();
+            })
+            .catch(function (err) {
+                showToast('❌ 更新失败: ' + err.message, 'error');
+            });
+        }
+
+        function toggleTransactionStatus(id) {
+            // Fetch current transaction to toggle status
+            apiFetch(API_BASE + '/transactions')
+                .then(function (data) {
+                    var txns = data.transactions || [];
+                    for (var i = 0; i < txns.length; i++) {
+                        if (txns[i].id === id) {
+                            var newStatus = txns[i].status === 'pending' ? 'completed' : 'pending';
+                            return apiFetch(API_BASE + '/transactions/' + id, {
+                                method: 'PATCH',
+                                body: { status: newStatus }
+                            });
+                        }
+                    }
+                    throw new Error('Transaction not found');
+                })
+                .then(function () {
+                    showToast('✅ 状态已切换', 'success');
+                    loadAllData();
+                })
+                .catch(function (err) {
+                    showToast('❌ 切换失败: ' + err.message, 'error');
+                });
+        }
+
+        function deleteTransaction(id) {
+            if (!confirm('确定要删除此收入记录吗？')) return;
+            apiFetch(API_BASE + '/transactions/' + id, { method: 'DELETE' })
+                .then(function () {
+                    showToast('🗑️ 已删除', 'success');
+                    loadAllData();
+                })
+                .catch(function (err) {
+                    showToast('❌ 删除失败: ' + err.message, 'error');
+                });
+        }
+
+        function exportTransactionsCSV() {
+            apiFetch(API_BASE + '/transactions')
+                .then(function (data) {
+                    var txns = data.transactions || [];
+                    if (txns.length === 0) { showToast('暂无数据可导出', 'warning'); return; }
+                    var csv = '\uFEFF日期,客户姓名,客户电话,服务名称,员工姓名,金额,支付方式,状态,备注\n';
+                    for (var i = 0; i < txns.length; i++) {
+                        var t = txns[i];
+                        csv += formatDate(t.date) + ',' +
+                            '"' + (t.client_name || '') + '",' +
+                            '"' + (t.client_phone || '') + '",' +
+                            '"' + (t.service_name || '') + '",' +
+                            '"' + (t.employee_name || '') + '",' +
+                            (t.amount || 0) + ',' +
+                            '"' + (t.payment_method || '') + '",' +
+                            '"' + (t.status || '') + '",' +
+                            '"' + (t.notes || '') + '"\n';
+                    }
+                    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    var url = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = '收入记录_' + new Date().toISOString().slice(0, 10) + '.csv';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast('📥 导出成功', 'success');
+                })
+                .catch(function (err) {
+                    showToast('❌ 导出失败: ' + err.message, 'error');
+                });
+        }
+
+        // ========== EXPENSES ==========
+        function loadExpenses() {
+            var tbody = document.getElementById('expensesBody');
+            apiFetch(API_BASE + '/expenses')
+                .then(function (data) {
+                    var exps = data.expenses || [];
+                    if (exps.length === 0) {
+                        tbody.innerHTML = '<tr class="empty-row"><td colspan="7">📭 暂无支出记录</td></tr>';
+                        return;
+                    }
+                    var html = '';
+                    for (var i = 0; i < exps.length; i++) {
+                        var e = exps[i];
+                        html += '<tr>' +
+                            '<td>' + escapeHtml(formatDate(e.date)) + '</td>' +
+                            '<td><span class="badge badge-warning">' + escapeHtml(e.category || '-') + '</span></td>' +
+                            '<td>' + escapeHtml(e.description || '-') + '</td>' +
+                            '<td><strong style="color:var(--danger);">' + formatCurrency(e.amount) + '</strong></td>' +
+                            '<td>' + escapeHtml(e.payment_method || '-') + '</td>' +
+                            '<td>' + escapeHtml(e.notes || '-') + '</td>' +
+                            '<td>' +
+                                '<button class="btn btn-outline btn-sm" onclick="editExpense(' + e.id + ')" title="编辑">✏️</button> ' +
+                                '<button class="btn btn-danger btn-sm" onclick="deleteExpense(' + e.id + ')" title="删除">🗑️</button>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                    tbody.innerHTML = html;
+                })
+                .catch(function (err) {
+                    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">❌ 加载失败: ' + escapeHtml(err.message) + '</td></tr>';
+                });
+        }
+
+        function promptAddExpense() {
+            var category = prompt('请输入支出类别 (如：租金/工资/水电/产品/市场/其他)：');
+            if (!category) return;
+            var description = prompt('请输入支出描述：');
+            if (!description) return;
+            var amount = prompt('请输入金额 (SGD)：');
+            if (!amount || isNaN(parseFloat(amount))) { showToast('请输入有效金额', 'error'); return; }
+            var paymentMethod = prompt('请输入支付方式 (现金/Credit Card/PayNow)：');
+            if (!paymentMethod) paymentMethod = '现金';
+            var notes = prompt('请输入备注（可选）：');
+
+            var data = {
+                category: category,
+                description: description,
+                amount: parseFloat(amount),
+                payment_method: paymentMethod,
+                notes: notes || ''
+            };
+
+            apiFetch(API_BASE + '/expenses', {
+                method: 'POST',
+                body: data
+            })
+            .then(function () {
+                showToast('✅ 支出已添加', 'success');
+                loadAllData();
+            })
+            .catch(function (err) {
+                showToast('❌ 添加失败: ' + err.message, 'error');
+            });
+        }
+
+        function editExpense(id) {
+            var newAmount = prompt('请输入新金额 (SGD)：');
+            if (newAmount && isNaN(parseFloat(newAmount))) { showToast('请输入有效金额', 'error'); return; }
+            var newCategory = prompt('请输入新类别：');
+            var newDescription = prompt('请输入新描述：');
+            var newNotes = prompt('请输入新备注：');
+
+            var data = {};
+            if (newAmount) data.amount = parseFloat(newAmount);
+            if (newCategory) data.category = newCategory;
+            if (newDescription) data.description = newDescription;
+            if (newNotes) data.notes = newNotes;
+
+            if (Object.keys(data).length === 0) { showToast('未做任何修改', 'warning'); return; }
+
+            apiFetch(API_BASE + '/expenses/' + id, {
+                method: 'PATCH',
+                body: data
+            })
+            .then(function () {
+                showToast('✅ 支出已更新', 'success');
+                loadAllData();
+            })
+            .catch(function (err) {
+                showToast('❌ 更新失败: ' + err.message, 'error');
+            });
+        }
+
+        function deleteExpense(id) {
+            if (!confirm('确定要删除此支出记录吗？')) return;
+            apiFetch(API_BASE + '/expenses/' + id, { method: 'DELETE' })
+                .then(function () {
+                    showToast('🗑️ 已删除', 'success');
+                    loadAllData();
+                })
+                .catch(function (err) {
+                    showToast('❌ 删除失败: ' + err.message, 'error');
+                });
+        }
+
+        // ========== COMMISSIONS ==========
+        var employeesCache = [];
+
+        function loadEmployees() {
+            apiFetch(API_BASE + '/employees')
+                .then(function (data) {
+                    var emps = data.employees || [];
+                    employeesCache = emps;
+                    var select = document.getElementById('commissionEmployeeSelect');
+                    var html = '<option value="">-- 请选择员工 --</option>';
+                    for (var i = 0; i < emps.length; i++) {
+                        html += '<option value="' + emps[i].id + '">' + escapeHtml(emps[i].name) + ' (' + escapeHtml(emps[i].role || '美容师') + ')</option>';
+                    }
+                    select.innerHTML = html;
+                })
+                .catch(function (err) {
+                    console.error('Load employees error:', err);
+                });
+        }
+
+        function loadEmployeeCommissions() {
+            var select = document.getElementById('commissionEmployeeSelect');
+            var empId = select.value;
+            var tbody = document.getElementById('commissionsBody');
+            var summaryDiv = document.getElementById('commissionSummary');
+
+            if (!empId) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);font-size:14px;">请先选择员工查看提成明细</td></tr>';
+                summaryDiv.style.display = 'none';
+                return;
+            }
+
+            apiFetch(API_BASE + '/employee-commissions')
+                .then(function (data) {
+                    var allComms = data.commissions || [];
+                    var filtered = [];
+                    var totalCommission = 0;
+                    var paidCount = 0;
+                    var pendingCount = 0;
+                    var paidAmount = 0;
+                    var pendingAmount = 0;
+
+                    for (var i = 0; i < allComms.length; i++) {
+                        var c = allComms[i];
+                        if (c.employee_id == empId) {
+                            filtered.push(c);
+                            totalCommission += parseFloat(c.amount) || 0;
+                            if (c.status === 'paid') {
+                                paidCount++;
+                                paidAmount += parseFloat(c.amount) || 0;
+                            } else {
+                                pendingCount++;
+                                pendingAmount += parseFloat(c.amount) || 0;
+                            }
+                        }
+                    }
+
+                    // Summary
+                    summaryDiv.style.display = 'grid';
+                    summaryDiv.innerHTML =
+                        '<div class="commission-summary-item"><div class="cs-value">' + formatCurrency(totalCommission) + '</div><div class="cs-label">总提成</div></div>' +
+                        '<div class="commission-summary-item"><div class="cs-value" style="color:var(--success);">' + formatCurrency(paidAmount) + '</div><div class="cs-label">已发放</div></div>' +
+                        '<div class="commission-summary-item"><div class="cs-value" style="color:var(--warning);">' + formatCurrency(pendingAmount) + '</div><div class="cs-label">待发放</div></div>' +
+                        '<div class="commission-summary-item"><div class="cs-value">' + filtered.length + '</div><div class="cs-label">笔数</div></div>';
+
+                    if (filtered.length === 0) {
+                        tbody.innerHTML = '<tr class="empty-row"><td colspan="8">📭 该员工暂无提成记录</td></tr>';
+                        return;
+                    }
+
+                    var html = '';
+                    for (var j = 0; j < filtered.length; j++) {
+                        var c = filtered[j];
+                        var statusClass = c.status === 'paid' ? 'badge-success' : 'badge-warning';
+                        var statusText = c.status === 'paid' ? '已发放' : '待发放';
+                        html += '<tr>' +
+                            '<td>' + escapeHtml(formatDate(c.date)) + '</td>' +
+                            '<td>' + escapeHtml(c.service_name || '-') + '</td>' +
+                            '<td>' + formatCurrency(c.amount || 0) + '</td>' +
+                            '<td>' + (c.commission_rate ? (c.commission_rate + '%') : '-') + '</td>' +
+                            '<td><strong style="color:var(--success);">' + formatCurrency(c.amount || 0) + '</strong></td>' +
+                            '<td><span class="badge ' + statusClass + ' status-toggle" onclick="toggleCommissionStatus(' + c.id + ')">' + statusText + '</span></td>' +
+                            '<td>' + escapeHtml(c.notes || '-') + '</td>' +
+                            '<td>' +
+                                '<button class="btn btn-outline btn-sm" onclick="editCommission(' + c.id + ')" title="编辑">✏️</button>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                    tbody.innerHTML = html;
+                })
+                .catch(function (err) {
+                    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">❌ 加载失败: ' + escapeHtml(err.message) + '</td></tr>';
+                });
+        }
+
+        function promptAddCommission() {
+            var select = document.getElementById('commissionEmployeeSelect');
+            var empId = select.value;
+            if (!empId) {
+                showToast('请先选择员工', 'warning');
+                return;
+            }
+            var empName = '';
+            for (var i = 0; i < employeesCache.length; i++) {
+                if (employeesCache[i].id == empId) {
+                    empName = employeesCache[i].name;
+                    break;
+                }
+            }
+            var serviceName = prompt('请输入服务名称：');
+            if (!serviceName) return;
+            var amount = prompt('请输入提成金额 (SGD)：');
+            if (!amount || isNaN(parseFloat(amount))) { showToast('请输入有效金额', 'error'); return; }
+            var rate = prompt('请输入提成率 (%)：');
+            var status = prompt('请输入状态 (paid/pending)：', 'pending');
+            if (!status) status = 'pending';
+            var notes = prompt('请输入备注（可选）：');
+
+            var data = {
+                employee_id: parseInt(empId),
+                employee_name: empName,
+                service_name: serviceName,
+                amount: parseFloat(amount),
+                commission_rate: rate ? parseFloat(rate) : null,
+                status: status,
+                notes: notes || ''
+            };
+
+            apiFetch(API_BASE + '/employee-commissions', {
+                method: 'POST',
+                body: data
+            })
+            .then(function () {
+                showToast('✅ 提成已添加', 'success');
+                loadEmployeeCommissions();
+            })
+            .catch(function (err) {
+                showToast('❌ 添加失败: ' + err.message, 'error');
+            });
+        }
+
+        function editCommission(id) {
+            var newAmount = prompt('请输入新金额 (SGD)：');
+            if (newAmount && isNaN(parseFloat(newAmount))) { showToast('请输入有效金额', 'error'); return; }
+            var newStatus = prompt('请输入新状态 (paid/pending)：');
+            var newNotes = prompt('请输入新备注：');
+
+            var data = {};
+            if (newAmount) data.amount = parseFloat(newAmount);
+            if (newStatus) data.status = newStatus;
+            if (newNotes) data.notes = newNotes;
+
+            if (Object.keys(data).length === 0) { showToast('未做任何修改', 'warning'); return; }
+
+            apiFetch(API_BASE + '/employee-commissions/' + id, {
+                method: 'PATCH',
+                body: data
+            })
+            .then(function () {
+                showToast('✅ 提成已更新', 'success');
+                loadEmployeeCommissions();
+            })
+            .catch(function (err) {
+                showToast('❌ 更新失败: ' + err.message, 'error');
+            });
+        }
+
+        function toggleCommissionStatus(id) {
+            apiFetch(API_BASE + '/employee-commissions')
+                .then(function (data) {
+                    var comms = data.commissions || [];
+                    for (var i = 0; i < comms.length; i++) {
+                        if (comms[i].id === id) {
+                            var newStatus = comms[i].status === 'paid' ? 'pending' : 'paid';
+                            return apiFetch(API_BASE + '/employee-commissions/' + id, {
+                                method: 'PATCH',
+                                body: { status: newStatus }
+                            });
+                        }
+                    }
+                    throw new Error('Commission not found');
+                })
+                .then(function () {
+                    showToast('✅ 提成状态已切换', 'success');
+                    loadEmployeeCommissions();
+                })
+                .catch(function (err) {
+                    showToast('❌ 切换失败: ' + err.message, 'error');
+                });
+        }
+
+        // ========== COMMISSION RULES ==========
+        function loadCommissionRules() {
+            var tbody = document.getElementById('rulesBody');
+            apiFetch(API_BASE + '/commission-rules')
+                .then(function (data) {
+                    var rules = data.rules || [];
+                    if (rules.length === 0) {
+                        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">📭 暂无提成规则</td></tr>';
+                        return;
+                    }
+                    var html = '';
+                    for (var i = 0; i < rules.length; i++) {
+                        var r = rules[i];
+                        var typeText = r.commission_type === 'percentage' ? '百分比' : '固定金额';
+                        var valText = r.commission_type === 'percentage' ? (r.commission_value + '%') : formatCurrency(r.commission_value);
+                        html += '<tr>' +
+                            '<td>' + escapeHtml(r.service_name || '-') + '</td>' +
+                            '<td>' + typeText + '</td>' +
+                            '<td><strong>' + valText + '</strong></td>' +
+                            '<td>' + (r.min_guarantee ? formatCurrency(r.min_guarantee) : '-') + '</td>' +
+                            '<td>' +
+                                '<button class="btn btn-outline btn-sm" onclick="editCommissionRule(' + r.id + ')" title="编辑">✏️</button> ' +
+                                '<button class="btn btn-danger btn-sm" onclick="deleteCommissionRule(' + r.id + ')" title="删除">🗑️</button>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                    tbody.innerHTML = html;
+                })
+                .catch(function (err) {
+                    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">❌ 加载失败: ' + escapeHtml(err.message) + '</td></tr>';
+                });
+        }
+
+        function promptAddCommissionRule() {
+            var serviceName = prompt('请输入服务名称：');
+            if (!serviceName) return;
+            var type = prompt('提成类型 (percentage/fixed)：', 'percentage');
+            if (!type) type = 'percentage';
+            var value = prompt('请输入提成值（百分比数字或金额）：');
+            if (!value || isNaN(parseFloat(value))) { showToast('请输入有效数值', 'error'); return; }
+            var minGuarantee = prompt('请输入保底金额（可选）：');
+
+            var data = {
+                service_name: serviceName,
+                commission_type: type,
+                commission_value: parseFloat(value)
+            };
+            if (minGuarantee && !isNaN(parseFloat(minGuarantee))) {
+                data.min_guarantee = parseFloat(minGuarantee);
+            }
+
+            apiFetch(API_BASE + '/commission-rules', {
+                method: 'POST',
+                body: data
+            })
+            .then(function () {
+                showToast('✅ 提成规则已添加', 'success');
+                loadCommissionRules();
+            })
+            .catch(function (err) {
+                showToast('❌ 添加失败: ' + err.message, 'error');
+            });
+        }
+
+        function editCommissionRule(id) {
+            var newType = prompt('请输入新类型 (percentage/fixed)：');
+            var newValue = prompt('请输入新提成值：');
+            if (newValue && isNaN(parseFloat(newValue))) { showToast('请输入有效数值', 'error'); return; }
+            var newMin = prompt('请输入新保底金额：');
+
+            var data = {};
+            if (newType) data.commission_type = newType;
+            if (newValue) data.commission_value = parseFloat(newValue);
+            if (newMin && !isNaN(parseFloat(newMin))) data.min_guarantee = parseFloat(newMin);
+
+            if (Object.keys(data).length === 0) { showToast('未做任何修改', 'warning'); return; }
+
+            apiFetch(API_BASE + '/commission-rules/' + id, {
+                method: 'PATCH',
+                body: data
+            })
+            .then(function () {
+                showToast('✅ 规则已更新', 'success');
+                loadCommissionRules();
+            })
+            .catch(function (err) {
+                showToast('❌ 更新失败: ' + err.message, 'error');
+            });
+        }
+
+        function deleteCommissionRule(id) {
+            if (!confirm('确定要删除此提成规则吗？')) return;
+            apiFetch(API_BASE + '/commission-rules/' + id, { method: 'DELETE' })
+                .then(function () {
+                    showToast('🗑️ 规则已删除', 'success');
+                    loadCommissionRules();
+                })
+                .catch(function (err) {
+                    showToast('❌ 删除失败: ' + err.message, 'error');
+                });
+        }
+
+        // ========== ANALYTICS ==========
+        var barColors = ['primary', 'green', 'blue', 'amber', 'purple', 'teal', 'pink', 'indigo'];
+
+        function loadAnalytics() {
+            apiFetch(API_BASE + '/finance-stats')
+                .then(function (data) {
+                    // Service revenue chart
+                    renderBarChart('serviceRevenueChart', data.service_revenue || {}, '服务类别');
+                    // Employee revenue chart
+                    renderBarChart('employeeRevenueChart', data.emp_revenue || {}, '员工');
+                    // Payment methods
+                    renderPaymentMethods(data.payment_methods || {});
+                    // Expense categories
+                    renderExpenseCategories(data.expense_categories || {});
+                })
+                .catch(function (err) {
+                    console.error('Analytics error:', err);
+                });
+        }
+
+        function renderBarChart(containerId, data, labelName) {
+            var container = document.getElementById(containerId);
+            var keys = Object.keys(data);
+            if (keys.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);font-size:14px;">📭 暂无数据</div>';
+                return;
+            }
+
+            // Sort by value descending
+            var sorted = [];
+            for (var k in data) {
+                if (data.hasOwnProperty(k)) {
+                    sorted.push({ name: k, value: parseFloat(data[k]) || 0 });
+                }
+            }
+            sorted.sort(function (a, b) { return b.value - a.value; });
+
+            var maxVal = sorted[0].value || 1;
+            var html = '';
+            for (var i = 0; i < sorted.length; i++) {
+                var item = sorted[i];
+                var pct = Math.max((item.value / maxVal) * 100, 3);
+                var colorClass = barColors[i % barColors.length];
+                html += '<div class="bar-row">' +
+                    '<span class="bar-label" title="' + escapeHtml(item.name) + '">' + escapeHtml(item.name) + '</span>' +
+                    '<div class="bar-track">' +
+                        '<div class="bar-fill ' + colorClass + '" style="width:' + pct + '%;"></div>' +
+                    '</div>' +
+                    '<span class="bar-value">' + formatCurrency(item.value) + '</span>' +
+                    '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        function renderPaymentMethods(methods) {
+            var container = document.getElementById('paymentBreakdown');
+            var keys = Object.keys(methods);
+            if (keys.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);font-size:14px;grid-column:1/-1;">📭 暂无数据</div>';
+                return;
+            }
+
+            var total = 0;
+            for (var k in methods) {
+                if (methods.hasOwnProperty(k)) {
+                    total += parseFloat(methods[k]) || 0;
+                }
+            }
+            total = total || 1;
+
+            var icons = {
+                '现金': '💵', 'Cash': '💵',
+                'Credit Card': '💳', '信用卡': '💳',
+                'PayNow': '📱', 'PayLah': '📱',
+                'Bank Transfer': '🏦', '转账': '🏦',
+                '微信': '💚', 'WeChat': '💚',
+                '支付宝': '💙', 'Alipay': '💙'
+            };
+
+            var html = '';
+            for (var key in methods) {
+                if (methods.hasOwnProperty(key)) {
+                    var val = parseFloat(methods[key]) || 0;
+                    var pct = ((val / total) * 100).toFixed(1);
+                    var icon = icons[key] || '💳';
+                    html += '<div class="payment-item">' +
+                        '<div class="pay-icon">' + icon + '</div>' +
+                        '<div class="pay-method">' + escapeHtml(key) + '</div>' +
+                        '<div class="pay-amount">' + formatCurrency(val) + '</div>' +
+                        '<div class="pay-percent">' + pct + '%</div>' +
+                        '</div>';
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        function renderExpenseCategories(categories) {
+            var container = document.getElementById('expenseCategoryChart');
+            var keys = Object.keys(categories);
+            if (keys.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);font-size:14px;">📭 暂无数据</div>';
+                return;
+            }
+
+            var sorted = [];
+            for (var k in categories) {
+                if (categories.hasOwnProperty(k)) {
+                    sorted.push({ name: k, value: parseFloat(categories[k]) || 0 });
+                }
+            }
+            sorted.sort(function (a, b) { return b.value - a.value; });
+
+            var maxVal = sorted[0].value || 1;
+            var html = '';
+            for (var i = 0; i < sorted.length; i++) {
+                var item = sorted[i];
+                var pct = Math.max((item.value / maxVal) * 100, 3);
+                var colorClass = barColors[i % barColors.length];
+                html += '<div class="bar-row">' +
+                    '<span class="bar-label" title="' + escapeHtml(item.name) + '">' + escapeHtml(item.name) + '</span>' +
+                    '<div class="bar-track">' +
+                        '<div class="bar-fill ' + colorClass + '" style="width:' + pct + '%;"></div>' +
+                    '</div>' +
+                    '<span class="bar-value" style="color:var(--danger);">' + formatCurrency(item.value) + '</span>' +
+                    '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        // ========== INIT ==========
+        document.addEventListener('DOMContentLoaded', function () {
+            loadAllData();
+            loadEmployees();
+            loadCommissionRules();
+        });
+    </script>
+</body>
+</html>
