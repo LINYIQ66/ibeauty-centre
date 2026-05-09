@@ -11,9 +11,12 @@ import socket
 from datetime import datetime, timedelta
 import uuid
 import re
+from urllib.parse import urlparse, parse_qs
+import cgi
 
 DB_PATH = "/tmp/ibeauty-app/backend/database/data.json"
 LOG_PATH = "/tmp/ibeauty-app/backend/logs/appointments.log"
+VIDEOS_PATH = "/tmp/beauty_spa_photos/videos/"
 
 # 初始化数据
 def init_db():
@@ -154,6 +157,37 @@ class BookingAPIHandler(BaseHTTPRequestHandler):
     
     def do_GET(self):
         db = load_db()
+        
+        # 处理视频文件下载
+        if self.path.startswith('/videos/'):
+            filename = self.path.split('/videos/')[1]
+            filepath = os.path.join(VIDEOS_PATH, filename)
+            
+            if os.path.exists(filepath) and os.path.isfile(filepath):
+                self.send_response(200)
+                # 根据文件扩展名设置 Content-Type
+                if filename.endswith('.mp4'):
+                    self.send_header('Content-Type', 'video/mp4')
+                elif filename.endswith('.webm'):
+                    self.send_header('Content-Type', 'video/webm')
+                elif filename.endswith('.ogv') or filename.endswith('.ogg'):
+                    self.send_header('Content-Type', 'video/ogg')
+                else:
+                    self.send_header('Content-Type', 'application/octet-stream')
+                
+                file_size = os.path.getsize(filepath)
+                self.send_header('Content-Length', str(file_size))
+                self.send_header('Content-Disposition', f'inline; filename="{filename}"')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                
+                with open(filepath, 'rb') as f:
+                    self.wfile.write(f.read())
+                return
+            else:
+                self.send_response(404)
+                self.end_headers()
+                return
         
         if self.path == '/api/services':
             self.send_json({"services": db["services"]})
@@ -369,11 +403,158 @@ class BookingAPIHandler(BaseHTTPRequestHandler):
                 "avg_transaction": round(month_revenue / max(len([t for t in transactions if t.get("status") == "completed" and t["date"].startswith(this_month)]), 1), 2)
             })
         
+        elif self.path == '/api/list-videos':
+            # GET endpoint for listing videos
+            os.makedirs(VIDEOS_PATH, exist_ok=True)
+            videos = []
+            total_size = 0
+            today = datetime.now().strftime('%Y-%m-%d')
+            uploaded_today = 0
+            
+            try:
+                for filename in os.listdir(VIDEOS_PATH):
+                    if filename.startswith('.'):
+                        continue
+                    file_path = os.path.join(VIDEOS_PATH, filename)
+                    if os.path.isfile(file_path):
+                        size = os.path.getsize(file_path)
+                        total_size += size
+                        mtime = datetime.fromtimestamp(os.path.getmtime(file_path))
+                        
+                        if mtime.strftime('%Y-%m-%d') == today:
+                            uploaded_today += 1
+                        
+                        videos.append({
+                            "name": filename,
+                            "size": size,
+                            "url": f"/api/video/{filename}",
+                            "modified": mtime.isoformat()
+                        })
+                
+                # Sort by modification time, newest first
+                videos.sort(key=lambda x: x['modified'], reverse=True)
+            except Exception as e:
+                log_operation("ERROR", "system", 0, f"Error listing videos: {str(e)}")
+            
+            self.send_json({
+                "success": True,
+                "videos": videos,
+                "totalCount": len(videos),
+                "totalSize": total_size,
+                "uploadedToday": uploaded_today
+            })
+        
+        elif self.path.startswith('/api/video/'):
+            # GET endpoint for serving video files
+            filename = self.path.replace('/api/video/', '')
+            file_path = os.path.join(VIDEOS_PATH, filename)
+            
+            if os.path.exists(file_path) and os.path.isfile(file_path):
+                self.send_response(200)
+                # 根据文件扩展名设置 Content-Type
+                if filename.endswith('.mp4'):
+                    self.send_header('Content-Type', 'video/mp4')
+                elif filename.endswith('.mov'):
+                    self.send_header('Content-Type', 'video/quicktime')
+                elif filename.endswith('.webm'):
+                    self.send_header('Content-Type', 'video/webm')
+                elif filename.endswith('.ogv') or filename.endswith('.ogg'):
+                    self.send_header('Content-Type', 'video/ogg')
+                else:
+                    self.send_header('Content-Type', 'application/octet-stream')
+                
+                file_size = os.path.getsize(file_path)
+                self.send_header('Content-Length', str(file_size))
+                self.send_header('Content-Disposition', f'inline; filename="{filename}"')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                with open(file_path, 'rb') as f:
+                    self.wfile.write(f.read())
+            else:
+                self.send_json({"error": "Video not found"}, 404)
+        
         else:
             self.send_json({"error": "Not found"}, 404)
     
     def do_POST(self):
         db = load_db()
+        
+        # 处理视频上传（多部分表单数据）
+        if self.path == '/api/upload-video':
+            content_type = self.headers.get('Content-Type', '')
+            if 'multipart/form-data' in content_type:
+                # 解析多部分表单数据
+                boundary = content_type.split("boundary=")[1].encode() if "boundary=" in content_type else b''
+                content_length = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(content_length)
+                
+                # 简单的多部分解析
+                parts = body.split(b'--' + boundary)
+                for part in parts:
+                    if b'filename=' in part:
+                        # 提取文件名
+                        filename_start = part.find(b'filename="') + 10
+                        filename_end = part.find(b'"', filename_start)
+                        filename = part[filename_start:filename_end].decode('utf-8')
+                        
+                        # 提取文件内容
+                        content_start = part.find(b'\r\n\r\n') + 4
+                        content_end = part.rfind(b'\r\n')
+                        file_content = part[content_start:content_end]
+                        
+                        # 保存文件
+                        os.makedirs(VIDEOS_PATH, exist_ok=True)
+                        file_path = os.path.join(VIDEOS_PATH, filename)
+                        with open(file_path, 'wb') as f:
+                            f.write(file_content)
+                        
+                        self.send_json({
+                            "success": True,
+                            "filename": filename,
+                            "size": len(file_content),
+                            "link": f"/videos/{filename}"
+                        }, 201)
+                        return
+            
+            self.send_json({"error": "Invalid upload"}, 400)
+            return
+        
+        # 处理视频列表
+        if self.path == '/api/list-videos':
+            videos = []
+            if os.path.exists(VIDEOS_PATH):
+                for filename in os.listdir(VIDEOS_PATH):
+                    filepath = os.path.join(VIDEOS_PATH, filename)
+                    if os.path.isfile(filepath):
+                        videos.append({
+                            "name": filename,
+                            "size": os.path.getsize(filepath),
+                            "uploadTime": datetime.fromtimestamp(os.path.getmtime(filepath)).isoformat(),
+                            "link": f"/videos/{filename}"
+                        })
+            videos.sort(key=lambda x: x["uploadTime"], reverse=True)
+            self.send_json({"videos": videos}, 200)
+            return
+        
+        # 处理视频删除
+        if self.path == '/api/delete-video':
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length).decode('utf-8')
+            try:
+                data = json.loads(body)
+                filename = data.get("filename", "")
+                filepath = os.path.join(VIDEOS_PATH, filename)
+                
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                    self.send_json({"success": True}, 200)
+                else:
+                    self.send_json({"error": "File not found"}, 404)
+            except Exception as e:
+                self.send_json({"error": str(e)}, 400)
+            return
+        
+        # 其他 POST 请求处理
         content_length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(content_length).decode('utf-8')
         
@@ -891,6 +1072,129 @@ class BookingAPIHandler(BaseHTTPRequestHandler):
                 self.send_json({"success": True})
             else:
                 self.send_json({"error": "Not found"}, 404)
+        
+        # Video upload endpoints
+        elif self.path == '/api/upload-video':
+            # Handle multipart form data
+            content_type = self.headers['Content-Type']
+            if 'multipart/form-data' in content_type:
+                # Parse boundary
+                boundary = content_type.split("boundary=")[1].encode()
+                body = self.rfile.read(int(self.headers['Content-Length']))
+                
+                # Extract filename and file data
+                parts = body.split(b'--' + boundary)
+                filename = None
+                file_data = None
+                
+                for part in parts:
+                    if b'filename=' in part:
+                        # Extract filename
+                        filename_start = part.find(b'filename="') + 10
+                        filename_end = part.find(b'"', filename_start)
+                        filename = part[filename_start:filename_end].decode()
+                        
+                        # Extract file data
+                        file_start = part.find(b'\r\n\r\n') + 4
+                        file_end = part.rfind(b'\r\n')
+                        file_data = part[file_start:file_end]
+                        break
+                
+                if filename and file_data:
+                    # Ensure videos directory exists
+                    os.makedirs(VIDEOS_PATH, exist_ok=True)
+                    
+                    # Save file
+                    file_path = os.path.join(VIDEOS_PATH, filename)
+                    with open(file_path, 'wb') as f:
+                        f.write(file_data)
+                    
+                    # Log upload
+                    log_operation("UPLOAD_VIDEO", "system", 0, f"Video uploaded: {filename} ({len(file_data)} bytes)")
+                    
+                    self.send_json({
+                        "success": True,
+                        "filename": filename,
+                        "size": len(file_data),
+                        "url": f"/api/video/{filename}"
+                    })
+                else:
+                    self.send_json({"error": "No file received"}, 400)
+            else:
+                self.send_json({"error": "Invalid content type"}, 400)
+        
+        elif self.path == '/api/list-videos':
+            # List all uploaded videos
+            os.makedirs(VIDEOS_PATH, exist_ok=True)
+            videos = []
+            total_size = 0
+            today = datetime.now().strftime('%Y-%m-%d')
+            uploaded_today = 0
+            
+            try:
+                for filename in os.listdir(VIDEOS_PATH):
+                    if filename.startswith('.'):
+                        continue
+                    file_path = os.path.join(VIDEOS_PATH, filename)
+                    if os.path.isfile(file_path):
+                        size = os.path.getsize(file_path)
+                        total_size += size
+                        mtime = datetime.fromtimestamp(os.path.getmtime(file_path))
+                        
+                        if mtime.strftime('%Y-%m-%d') == today:
+                            uploaded_today += 1
+                        
+                        videos.append({
+                            "name": filename,
+                            "size": size,
+                            "url": f"/api/video/{filename}",
+                            "modified": mtime.isoformat()
+                        })
+                
+                # Sort by modification time, newest first
+                videos.sort(key=lambda x: x['modified'], reverse=True)
+            except Exception as e:
+                log_operation("ERROR", "system", 0, f"Error listing videos: {str(e)}")
+            
+            self.send_json({
+                "success": True,
+                "videos": videos,
+                "totalCount": len(videos),
+                "totalSize": total_size,
+                "uploadedToday": uploaded_today
+            })
+        
+        elif self.path.startswith('/api/video/'):
+            # Serve video file
+            filename = self.path.replace('/api/video/', '')
+            file_path = os.path.join(VIDEOS_PATH, filename)
+            
+            if os.path.exists(file_path) and os.path.isfile(file_path):
+                self.send_response(200)
+                self.send_header('Content-Type', 'video/mp4')
+                self.send_header('Content-Disposition', f'inline; filename="{filename}"')
+                self.end_headers()
+                with open(file_path, 'rb') as f:
+                    self.wfile.write(f.read())
+            else:
+                self.send_json({"error": "Video not found"}, 404)
+        
+        elif self.path.startswith('/api/delete-video'):
+            # Delete video file
+            body = self.rfile.read(int(self.headers.get('Content-Length', 0)))
+            try:
+                data = json.loads(body)
+                filename = data.get('filename', '')
+                file_path = os.path.join(VIDEOS_PATH, filename)
+                
+                if os.path.exists(file_path) and os.path.isfile(file_path):
+                    os.remove(file_path)
+                    log_operation("DELETE_VIDEO", "system", 0, f"Video deleted: {filename}")
+                    self.send_json({"success": True})
+                else:
+                    self.send_json({"error": "File not found"}, 404)
+            except Exception as e:
+                self.send_json({"error": str(e)}, 500)
         
         else:
             self.send_json({"error": "Not found"}, 404)
