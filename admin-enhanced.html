@@ -1,1847 +1,1847 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I BEAUTY CENTRE | 管理后台</title>
-    <style>
-        :root {
-            --primary: #c41e3a;
-            --primary-dark: #a01830;
-            --success: #25d366;
-            --warning: #f59e0b;
-            --danger: #dc2626;
-            --info: #0088cc;
-            --bg: #f5f7fa;
-            --card: #ffffff;
-            --sidebar: #1a1a2e;
-            --text: #2c3e50;
-            --text-light: #7f8c8d;
-            --border: #e0e0e0;
-            --xhs: #ff2442;
-            --tiktok: #00f2ea;
-            --facebook: #1877f2;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-            background: var(--bg);
-            display: flex;
-            min-height: 100vh;
-            color: var(--text);
-        }
-
-        .sidebar {
-            width: 260px;
-            background: var(--sidebar);
-            color: white;
-            padding: 24px 0;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-logo {
-            padding: 0 24px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .sidebar-logo h2 { font-size: 18px; font-weight: 500; color: white; }
-        .sidebar-logo span { color: var(--primary); }
-
-        .nav-section {
-            padding: 16px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .nav-section-title {
-            padding: 0 24px 8px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: rgba(255,255,255,0.35);
-            font-weight: 500;
-        }
-
-        .nav-item {
-            padding: 11px 24px;
-            color: rgba(255,255,255,0.7);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.2s;
-            font-size: 14px;
-            text-decoration: none;
-            border-left: 3px solid transparent;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-left-color: var(--primary);
-        }
-
-        .nav-item .nav-icon { font-size: 16px; width: 22px; text-align: center; }
-
-        .nav-badge {
-            margin-left: auto;
-            background: var(--primary);
-            color: white;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 600;
-            min-width: 20px;
-            text-align: center;
-        }
-
-        .nav-section.system-section {
-            margin-top: auto;
-            border-bottom: none;
-            border-top: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .main-content {
-            flex: 1;
-            margin-left: 260px;
-            padding: 32px;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .page-header h1 { font-size: 28px; color: var(--sidebar); }
-
-        .page-subtitle {
-            font-size: 14px;
-            color: var(--text-light);
-            margin-top: 4px;
-        }
-
-        .page-header-left {}
-        .page-header-right {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: #a01830; }
-        .btn-outline { background: transparent; border: 1px solid #e0e0e0; color: var(--sidebar); }
-        .btn-outline:hover { background: #f0f0f0; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { background: #1ebe5d; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { background: #b91c1c; }
-        .btn-sm { padding: 6px 12px; font-size: 12px; }
-        .btn-xs { padding: 4px 8px; font-size: 11px; border-radius: 4px; }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background: var(--card);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .stat-label { font-size: 13px; color: #666; margin-bottom: 8px; }
-        .stat-value { font-size: 32px; font-weight: 600; color: var(--sidebar); }
-        .stat-change { font-size: 12px; margin-top: 8px; }
-        .stat-change.up { color: var(--success); }
-        .stat-change.down { color: var(--danger); }
-
-        .social-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-
-        .social-card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border-top: 4px solid var(--border);
-        }
-
-        .social-card.xhs { border-top-color: var(--xhs); }
-        .social-card.tiktok { border-top-color: var(--tiktok); }
-        .social-card.facebook { border-top-color: var(--facebook); }
-
-        .social-card h3 { font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-        .social-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .social-stat { text-align: center; }
-        .social-stat .val { font-size: 20px; font-weight: 600; color: var(--sidebar); }
-        .social-stat .lbl { font-size: 11px; color: #999; margin-top: 2px; }
-
-        .quick-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-        }
-
-        .quick-action-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 20px 24px;
-            background: var(--card);
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            font-size: 13px;
-            color: var(--text);
-            min-width: 100px;
-        }
-
-        .quick-action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .quick-action-btn .qa-icon { font-size: 28px; }
-
-        .card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 24px;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .card-header h3 { font-size: 18px; color: var(--sidebar); }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 14px;
-        }
-
-        th { font-weight: 500; color: #666; font-size: 13px; background: #f8f9fa; }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-block;
-        }
-
-        .status-confirmed { background: rgba(37,211,102,0.15); color: var(--success); }
-        .status-pending { background: rgba(245,158,11,0.15); color: var(--warning); }
-        .status-cancelled { background: rgba(220,38,38,0.15); color: var(--danger); }
-        .status-rescheduled { background: rgba(0,136,204,0.15); color: var(--info); }
-
-        .source-icon { font-size: 16px; }
-        .source-xiaohongshu { color: var(--xhs); }
-        .source-tiktok { color: var(--tiktok); }
-        .source-whatsapp { color: var(--success); }
-        .source-chat { color: var(--info); }
-        .source-website { color: #666; }
-
-        .tab-bar {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 20px;
-            background: #f0f0f0;
-            border-radius: 8px;
-            padding: 4px;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            padding: 8px 16px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-size: 13px;
-            border-radius: 6px;
-            color: #666;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .tab-btn.active {
-            background: white;
-            color: var(--sidebar);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .tab-btn:hover:not(.active) { color: var(--sidebar); }
-
-        .employee-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .employee-card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .employee-card-top {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .employee-avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 22px;
-            flex-shrink: 0;
-        }
-
-        .employee-info { flex: 1; }
-        .employee-name { font-weight: 600; color: var(--sidebar); font-size: 16px; }
-        .employee-role { font-size: 13px; color: var(--text-light); margin-top: 2px; }
-        .employee-specialty { font-size: 12px; color: #999; margin-top: 2px; }
-
-        .employee-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            text-align: center;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .emp-stat .emp-stat-val { font-size: 18px; font-weight: 600; color: var(--sidebar); }
-        .emp-stat .emp-stat-lbl { font-size: 11px; color: #999; }
-
-        .employee-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .template-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        .template-card {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .template-card:hover { border-color: var(--primary); background: #fff5f5; }
-        .template-card h4 { font-size: 14px; margin-bottom: 8px; color: var(--sidebar); }
-        .template-card p { font-size: 13px; color: #666; line-height: 1.5; }
-        .template-card .template-actions { margin-top: 12px; display: flex; gap: 8px; }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-        }
-
-        .content-day {
-            background: var(--card);
-            border-radius: 8px;
-            padding: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            min-height: 120px;
-        }
-
-        .content-day .day-label { font-size: 12px; color: #999; margin-bottom: 8px; font-weight: 500; }
-        .content-day .day-num { font-size: 20px; font-weight: 600; color: var(--sidebar); margin-bottom: 8px; }
-        .content-day .platform-tag {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            margin-bottom: 4px;
-            margin-right: 4px;
-        }
-
-        .platform-xhs { background: rgba(255,36,66,0.15); color: var(--xhs); }
-        .platform-tiktok { background: rgba(0,242,234,0.15); color: #009688; }
-        .platform-facebook { background: rgba(24,119,242,0.15); color: var(--facebook); }
-
-        .chart-bar {
-            display: flex;
-            align-items: end;
-            gap: 12px;
-            height: 200px;
-            padding: 20px 0;
-        }
-
-        .chart-bar-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .chart-bar-item .bar {
-            width: 100%;
-            max-width: 40px;
-            background: var(--primary);
-            border-radius: 4px 4px 0 0;
-            min-height: 4px;
-            transition: height 0.3s;
-        }
-
-        .chart-bar-item .bar-label { font-size: 11px; color: #999; }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-overlay.active { display: flex; }
-
-        .modal {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 32px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal h2 { font-size: 20px; margin-bottom: 24px; color: var(--sidebar); }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.2s;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .color-options {
-            display: flex;
-            gap: 12px;
-        }
-
-        .color-option {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .color-option.selected { border-color: var(--sidebar); }
-        .color-option:hover { transform: scale(1.1); }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-top: 24px;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            padding: 14px 24px;
-            border-radius: 12px;
-            color: white;
-            font-size: 14px;
-            z-index: 2000;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.3s;
-            pointer-events: none;
-            max-width: 400px;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .toast-success { background: var(--success); }
-        .toast-error { background: var(--danger); }
-        .toast-info { background: var(--info); }
-        .toast-warning { background: var(--warning); }
-
-        .toggle-switch {
-            position: relative;
-            width: 44px;
-            height: 24px;
-            display: inline-block;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #ccc;
-            border-radius: 24px;
-            transition: 0.3s;
-        }
-
-        .toggle-slider:before {
-            content: "";
-            position: absolute;
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background: white;
-            border-radius: 50%;
-            transition: 0.3s;
-        }
-
-        .toggle-switch input:checked + .toggle-slider { background: var(--success); }
-        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
-
-        .checkbox-cell {
-            width: 40px;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar { display: none; }
-            .main-content { margin-left: 0; padding: 16px; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .content-grid { grid-template-columns: repeat(2, 1fr); }
-            .employee-grid { grid-template-columns: 1fr; }
-        }
-    </style>
-</head>
-<body>
-    <aside class="sidebar">
-        <div class="sidebar-logo">
-            <h2>I BEAUTY <span>CENTRE</span></h2>
-        </div>
-
-        <nav class="nav-section">
-            <div class="nav-section-title">核心业务</div>
-            <div class="nav-item active" onclick="showSection('dashboard')">
-                <span class="nav-icon">📊</span> Dashboard
-            </div>
-            <div class="nav-item" onclick="showSection('appointments')">
-                <span class="nav-icon">📅</span> 预约管理
-                <span class="nav-badge" id="pendingBadge">0</span>
-            </div>
-            <div class="nav-item" onclick="showSection('employees')">
-                <span class="nav-icon">👩</span> 员工管理
-            </div>
-            <div class="nav-item" onclick="showSection('customers')">
-                <span class="nav-icon">👥</span> 客户管理
-            </div>
-            <div class="nav-item" onclick="window.open('finance.html', '_blank')">
-                <span class="nav-icon">💰</span> 财务管理
-            </div>
-        </nav>
-
-        <nav class="nav-section">
-            <div class="nav-section-title">社交媒体</div>
-            <div class="nav-item" onclick="showSection('xiaohongshu')" style="--accent: #ff2442;">
-                <span class="nav-icon">📕</span> 小红书
-                <span class="nav-badge" id="xhsBadge" style="background:#ff2442;">0</span>
-            </div>
-            <div class="nav-item" onclick="showSection('tiktok')" style="--accent: #00f2ea;">
-                <span class="nav-icon">🎵</span> TikTok
-            </div>
-            <div class="nav-item" onclick="showSection('facebook')" style="--accent: #1877f2;">
-                <span class="nav-icon">📘</span> Facebook
-            </div>
-        </nav>
-
-        <nav class="nav-section">
-            <div class="nav-section-title">营销推广</div>
-            <div class="nav-item" onclick="showSection('content')">
-                <span class="nav-icon">📝</span> 内容日历
-            </div>
-            <div class="nav-item" onclick="showSection('reports')">
-                <span class="nav-icon">📈</span> 数据报表
-            </div>
-        </nav>
-
-        <nav class="nav-section system-section">
-            <div class="nav-section-title">系统</div>
-            <div class="nav-item" onclick="showSection('settings')">
-                <span class="nav-icon">⚙️</span> 设置
-            </div>
-            <div class="nav-item" onclick="window.open('/', '_blank')">
-                <span class="nav-icon">🏠</span> 返回官网
-            </div>
-        </nav>
-    </aside>
-
-    <main class="main-content">
-        <!-- Dashboard Section -->
-        <section id="dashboard" class="section active">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>📊 Dashboard</h1>
-                    <div class="page-subtitle">实时业务概览 · 最后更新：<span id="lastUpdate">刚刚</span></div>
-                </div>
-                <div class="page-header-right">
-                    <button class="btn btn-outline" onclick="loadAllData()">🔄 刷新</button>
-                    <button class="btn btn-outline" onclick="generateReport()">📄 生成日报</button>
-                    <button class="btn btn-success" onclick="sendWhatsAppReport()">📤 WhatsApp 发送</button>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">📅 今日预约</div>
-                    <div class="stat-value" id="todayApts">-</div>
-                    <div class="stat-change up" id="todayAptChange">实时更新</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">⏳ 待确认</div>
-                    <div class="stat-value" id="pendingApts">-</div>
-                    <div class="stat-change up" id="pendingAptChange">等待处理</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">💰 本周收入</div>
-                    <div class="stat-value" id="weeklyRevenue">$0</div>
-                    <div class="stat-change up" id="revenueChange">本周累计</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">📱 社交媒体互动</div>
-                    <div class="stat-value" id="socialEngagement">-</div>
-                    <div class="stat-change up" id="socialChange">本周累计</div>
-                </div>
-            </div>
-
-            <div class="social-grid">
-                <div class="social-card xhs">
-                    <h3>📕 小红书</h3>
-                    <div class="social-stats">
-                        <div class="social-stat"><div class="val" id="xhsFollowers">-</div><div class="lbl">粉丝</div></div>
-                        <div class="social-stat"><div class="val" id="xhsLikes">-</div><div class="lbl">点赞</div></div>
-                        <div class="social-stat"><div class="val" id="xhsCollects">-</div><div class="lbl">收藏</div></div>
-                    </div>
-                </div>
-                <div class="social-card tiktok">
-                    <h3>🎵 TikTok</h3>
-                    <div class="social-stats">
-                        <div class="social-stat"><div class="val" id="tiktokFollowers">-</div><div class="lbl">粉丝</div></div>
-                        <div class="social-stat"><div class="val" id="tiktokLikes">-</div><div class="lbl">点赞</div></div>
-                        <div class="social-stat"><div class="val" id="tiktokShares">-</div><div class="lbl">分享</div></div>
-                    </div>
-                </div>
-                <div class="social-card facebook">
-                    <h3>📘 Facebook</h3>
-                    <div class="social-stats">
-                        <div class="social-stat"><div class="val" id="fbFollowers">-</div><div class="lbl">粉丝</div></div>
-                        <div class="social-stat"><div class="val" id="fbEngagement">-</div><div class="lbl">互动</div></div>
-                        <div class="social-stat"><div class="val" id="fbMessages">-</div><div class="lbl">消息</div></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quick-actions">
-                <div class="quick-action-btn" onclick="createNote()">
-                    <div class="qa-icon">✍️</div>
-                    <span>写笔记</span>
-                </div>
-                <div class="quick-action-btn" onclick="alert('上传功能开发中')">
-                    <div class="qa-icon">🎥</div>
-                    <span>上传</span>
-                </div>
-                <div class="quick-action-btn" onclick="alert('发帖功能开发中')">
-                    <div class="qa-icon">📝</div>
-                    <span>发帖</span>
-                </div>
-                <div class="quick-action-btn" onclick="showSection('reports')">
-                    <div class="qa-icon">📊</div>
-                    <span>分析</span>
-                </div>
-                <div class="quick-action-btn" onclick="alert('回复功能开发中')">
-                    <div class="qa-icon">💬</div>
-                    <span>回复</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Appointments Section -->
-        <section id="appointments" class="section" style="display:none">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>📅 预约管理</h1>
-                    <div class="page-subtitle">确认、改期、取消预约 · 实时同步</div>
-                </div>
-                <div class="page-header-right">
-                    <button class="btn btn-outline" onclick="exportAppointments()">📥 导出 Excel</button>
-                    <button class="btn btn-primary" onclick="openAddAptModal()">➕ 新增预约</button>
-                </div>
-            </div>
-
-            <div class="tab-bar">
-                <button class="tab-btn active" onclick="filterApts('today', event)">今日</button>
-                <button class="tab-btn" onclick="filterApts('tomorrow', event)">明日</button>
-                <button class="tab-btn" onclick="filterApts('week', event)">本周</button>
-                <button class="tab-btn" onclick="filterApts('pending', event)">待确认 <span id="pendingCount" style="color:var(--warning);font-weight:600;">0</span></button>
-                <button class="tab-btn" onclick="filterApts('all', event)">全部</button>
-            </div>
-
-            <div class="card">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="checkbox-cell"><input type="checkbox" onclick="toggleAllApts(this)"></th>
-                            <th>时间</th>
-                            <th>顾客</th>
-                            <th>服务</th>
-                            <th>美容师</th>
-                            <th>来源</th>
-                            <th>状态</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="appointmentsTable">
-                        <tr><td colspan="8" style="text-align:center;color:#999;padding:40px;">加载中...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Employees Section -->
-        <section id="employees" class="section" style="display:none">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>👩 员工管理</h1>
-                    <div class="page-subtitle">员工信息、业绩追踪、排班管理</div>
-                </div>
-                <div class="page-header-right">
-                    <button class="btn btn-primary" onclick="openAddEmpModal()">➕ 添加员工</button>
-                </div>
-            </div>
-
-            <div id="employeesGrid" class="employee-grid">
-                <div style="text-align:center;color:#999;padding:40px;grid-column:1/-1;">加载中...</div>
-            </div>
-        </section>
-
-        <!-- Customers Section -->
-        <section id="customers" class="section" style="display:none">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>👥 客户管理</h1>
-                    <div class="page-subtitle">客户信息、消费记录、偏好管理</div>
-                </div>
-                <div class="page-header-right">
-                    <button class="btn btn-primary" onclick="window.open('clients.html', '_blank')">📋 打开客户管理</button>
-                </div>
-            </div>
-            <div class="card" style="text-align:center;padding:60px;">
-                <p style="font-size:16px;color:#666;">客户管理功能已迁移至独立页面</p>
-                <button class="btn btn-primary" style="margin-top:16px;" onclick="window.open('clients.html', '_blank')">📋 打开客户管理</button>
-            </div>
-        </section>
-
-        <!-- Xiaohongshu Section -->
-        <section id="xiaohongshu" class="section" style="display:none">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>📕 小红书</h1>
-                    <div class="page-subtitle">笔记管理 · 数据分析</div>
-                </div>
-                <div class="page-header-right">
-                    <button class="btn btn-outline" onclick="alert('数据分析功能开发中')">📊 数据分析</button>
-                    <button class="btn btn-primary" onclick="createNote()">✍️ 写笔记</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3>📝 笔记模板</h3>
-                </div>
-                <div class="template-cards">
-                    <div class="template-card" onclick="useTemplate('facial')">
-                        <h4>🧖 面部护理推广</h4>
-                        <p>✨ 解锁肌肤新境界！<br><br>
-💆 深层清洁 + 补水保湿<br>
-🌸 适合所有肤质<br>
-🎉 限时特惠 $68起<br><br>
-📍 I BEAUTY CENTRE<br>
-📱 私信预约享折扣！</p>
-                        <div class="template-actions">
-                            <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();useTemplate('facial')">📋 使用</button>
-                        </div>
-                    </div>
-                    <div class="template-card" onclick="useTemplate('massage')">
-                        <h4>💆 按摩体验推广</h4>
-                        <p>🌟 逃离喧嚣，遇见更好的自己<br><br>
-🕯 芳香精油按摩 60min<br>
-🔥 热石疗法深度放松<br>
-💎 瑞典按摩舒缓压力<br><br>
-🎁 新客专享 $88体验价<br>
-📲 私信预约即可享受</p>
-                        <div class="template-actions">
-                            <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();useTemplate('massage')">📋 使用</button>
-                        </div>
-                    </div>
-                    <div class="template-card" onclick="useTemplate('promotion')">
-                        <h4>🎉 限时优惠推广</h4>
-                        <p>🔥 限时特惠！错过等一年！<br><br>
-🎊 买二送一：任意面部护理<br>
-💫 双人同行 7折优惠<br>
-🎀 闺蜜套餐仅 $128/2人<br><br>
-⏰ 活动截止：本周日<br>
-💬 评论区扣1获取优惠券</p>
-                        <div class="template-actions">
-                            <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();useTemplate('promotion')">📋 使用</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TikTok Section -->
-        <section id="tiktok" class="section" style="display:none">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>🎵 TikTok</h1>
-                    <div class="page-subtitle">短视频数据 · 热度分析</div>
-                </div>
-                <div class="page-header-right">
-                    <button class="btn btn-primary" onclick="alert('上传视频功能开发中')">🎥 上传视频</button>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">🎬 粉丝</div>
-                    <div class="stat-value" id="tiktokFollowers2">12.3K</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">▶️ 播放量</div>
-                    <div class="stat-value" id="tiktokPlays">45.6K</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">📅 本周发布</div>
-                    <div class="stat-value" id="tiktokWeekly">2</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3>🔥 热门视频</h3>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>视频</th>
-                            <th>播放</th>
-                            <th>点赞</th>
-                            <th>评论</th>
-                            <th>分享</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tiktokVideos">
-                        <tr><td colspan="5" style="text-align:center;color:#999;">暂无数据</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Facebook Section -->
-        <section id="facebook" class="section" style="display:none">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>📘 Facebook</h1>
-                    <div class="page-subtitle">专页数据 · 帖文管理</div>
-                </div>
-                <div class="page-header-right">
-                    <button class="btn btn-primary" onclick="alert('发帖功能开发中')">📝 发布帖文</button>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">👍 粉丝</div>
-                    <div class="stat-value" id="fbFollowers2">8.9K</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">💬 互动</div>
-                    <div class="stat-value" id="fbEngagement2">1.2K</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">✉️ 消息</div>
-                    <div class="stat-value" id="fbMessages2">89</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3>📅 即将发布的帖文</h3>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>时间</th>
-                            <th>内容</th>
-                            <th>状态</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fbPosts">
-                        <tr><td colspan="3" style="text-align:center;color:#999;">暂无数据</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Content Calendar Section -->
-        <section id="content" class="section" style="display:none">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>📝 内容日历</h1>
-                    <div class="page-subtitle">内容规划 · 发布排程</div>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">📅 本周发布</div>
-                    <div class="stat-value" id="contentThisWeek">5</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">⏳ 待发布</div>
-                    <div class="stat-value" id="contentPending">3</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">👁 本月曝光</div>
-                    <div class="stat-value" id="contentExposure">12.8K</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3>📆 本周日历</h3>
-                </div>
-                <div class="content-grid" id="contentCalendar">
-                    <div class="content-day">
-                        <div class="day-label">周一</div>
-                        <div class="day-num">-</div>
-                        <span class="platform-tag platform-xhs">📕</span>
-                    </div>
-                    <div class="content-day">
-                        <div class="day-label">周二</div>
-                        <div class="day-num">-</div>
-                        <span class="platform-tag platform-tiktok">🎵</span>
-                    </div>
-                    <div class="content-day">
-                        <div class="day-label">周三</div>
-                        <div class="day-num">-</div>
-                    </div>
-                    <div class="content-day">
-                        <div class="day-label">周四</div>
-                        <div class="day-num">-</div>
-                        <span class="platform-tag platform-xhs">📕</span>
-                    </div>
-                    <div class="content-day">
-                        <div class="day-label">周五</div>
-                        <div class="day-num">-</div>
-                        <span class="platform-tag platform-facebook">📘</span>
-                    </div>
-                    <div class="content-day">
-                        <div class="day-label">周六</div>
-                        <div class="day-num">-</div>
-                    </div>
-                    <div class="content-day">
-                        <div class="day-label">周日</div>
-                        <div class="day-num">-</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Reports Section -->
-        <section id="reports" class="section" style="display:none">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>📈 数据报表</h1>
-                    <div class="page-subtitle">业绩分析 · 趋势追踪</div>
-                </div>
-                <div class="page-header-right">
-                    <button class="btn btn-outline" onclick="generateReport()">📄 生成报告</button>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">💰 本周总收入</div>
-                    <div class="stat-value" id="reportWeeklyRevenue">$0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">✅ 预约完成率</div>
-                    <div class="stat-value" id="reportCompletionRate">0%</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">👤 客单价均值</div>
-                    <div class="stat-value" id="reportAvgOrder">$0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">🆕 新客户数</div>
-                    <div class="stat-value" id="reportNewClients">0</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3>📊 本周趋势</h3>
-                </div>
-                <div class="chart-bar" id="weeklyTrend">
-                    <div class="chart-bar-item"><div class="bar" style="height:60%;background:var(--primary);"></div><div class="bar-label">周一</div></div>
-                    <div class="chart-bar-item"><div class="bar" style="height:40%;background:var(--primary);"></div><div class="bar-label">周二</div></div>
-                    <div class="chart-bar-item"><div class="bar" style="height:80%;background:var(--primary);"></div><div class="bar-label">周三</div></div>
-                    <div class="chart-bar-item"><div class="bar" style="height:55%;background:var(--primary);"></div><div class="bar-label">周四</div></div>
-                    <div class="chart-bar-item"><div class="bar" style="height:70%;background:var(--primary);"></div><div class="bar-label">周五</div></div>
-                    <div class="chart-bar-item"><div class="bar" style="height:45%;background:var(--primary);"></div><div class="bar-label">周六</div></div>
-                    <div class="chart-bar-item"><div class="bar" style="height:30%;background:var(--primary);"></div><div class="bar-label">周日</div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Settings Section -->
-        <section id="settings" class="section" style="display:none">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>⚙️ 设置</h1>
-                    <div class="page-subtitle">门店信息 · 通知配置</div>
-                </div>
-                <div class="page-header-right">
-                    <button class="btn btn-primary" onclick="alert('设置已保存')">💾 保存设置</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header"><h3>🏪 基本信息</h3></div>
-                <div class="form-group">
-                    <label>门店名称</label>
-                    <input type="text" id="shopName" value="I BEAUTY CENTRE">
-                </div>
-                <div class="form-group">
-                    <label>营业时间</label>
-                    <input type="text" id="shopHours" value="10:00 - 22:00">
-                </div>
-                <div class="form-group">
-                    <label>WhatsApp号码</label>
-                    <input type="text" id="whatsappNumber" value="6593391705">
-                </div>
-                <div class="form-group">
-                    <label>老板通知号码</label>
-                    <input type="text" id="bossNumber" value="6593391705">
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header"><h3>🔔 通知设置</h3></div>
-                <div style="display:flex;flex-direction:column;gap:16px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;">
-                        <span style="font-size:14px;">新预约通知</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" checked><span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div style="display:flex;align-items:center;justify-content:space-between;">
-                        <span style="font-size:14px;">取消预约通知</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" checked><span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div style="display:flex;align-items:center;justify-content:space-between;">
-                        <span style="font-size:14px;">每日报告推送</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox"><span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div style="display:flex;align-items:center;justify-content:space-between;">
-                        <span style="font-size:14px;">社交媒体提醒</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" checked><span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Employee Modal -->
-    <div class="modal-overlay" id="employeeModal">
-        <div class="modal">
-            <h2 id="employeeModalTitle">添加员工</h2>
-            <form id="employeeForm" onsubmit="return false;">
-                <div class="form-group">
-                    <label>姓名</label>
-                    <input type="text" id="empName" placeholder="输入员工姓名" required>
-                </div>
-                <div class="form-group">
-                    <label>职位</label>
-                    <input type="text" id="empRole" placeholder="如：高级美容师" required>
-                </div>
-                <div class="form-group">
-                    <label>专长</label>
-                    <input type="text" id="empSpecialty" placeholder="如：面部护理、按摩">
-                </div>
-                <div class="form-group">
-                    <label>电话</label>
-                    <input type="text" id="empPhone" placeholder="手机号码">
-                </div>
-                <div class="form-group">
-                    <label>邮箱</label>
-                    <input type="email" id="empEmail" placeholder="电子邮箱">
-                </div>
-                <div class="form-group">
-                    <label>颜色标识</label>
-                    <div class="color-options" id="colorOptions">
-                        <div class="color-option selected" style="background:#c41e3a;" data-color="#c41e3a" onclick="selectColor(this)"></div>
-                        <div class="color-option" style="background:#25d366;" data-color="#25d366" onclick="selectColor(this)"></div>
-                        <div class="color-option" style="background:#0088cc;" data-color="#0088cc" onclick="selectColor(this)"></div>
-                        <div class="color-option" style="background:#f59e0b;" data-color="#f59e0b" onclick="selectColor(this)"></div>
-                        <div class="color-option" style="background:#8b5cf6;" data-color="#8b5cf6" onclick="selectColor(this)"></div>
-                        <div class="color-option" style="background:#ec4899;" data-color="#ec4899" onclick="selectColor(this)"></div>
-                    </div>
-                </div>
-                <input type="hidden" id="empColor" value="#c41e3a">
-                <input type="hidden" id="empId" value="">
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-outline" onclick="closeEmpModal()">取消</button>
-                    <button type="button" class="btn btn-primary" onclick="saveEmployee()">保存</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
-
-    <script>
-        var API_BASE = 'http://45.76.153.191:8082/api';
-        var allAppointments = [];
-        var allEmployees = [];
-        var currentFilter = 'today';
-        var fallbackToDemo = false;
-
-        function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(function(s) { s.style.display = 'none'; });
-            document.getElementById(sectionId).style.display = 'block';
-
-            document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-            // Find the nav-item that matches this section
-            document.querySelectorAll('.nav-item').forEach(function(n) {
-                var onclick = n.getAttribute('onclick') || '';
-                if (onclick.indexOf(sectionId) > -1) {
-                    n.classList.add('active');
-                }
-            });
-        }
-
-        function showToast(message, type) {
-            var toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast toast-' + (type || 'info');
-            toast.classList.add('show');
-            setTimeout(function() {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        function formatTime(time) {
-            if (!time) return '';
-            var parts = time.split(':');
-            var h = parseInt(parts[0]);
-            var m = parts[1];
-            var ampm = h >= 12 ? 'PM' : 'AM';
-            if (h > 12) h = h - 12;
-            if (h === 0) h = 12;
-            return h + ':' + m + ' ' + ampm;
-        }
-
-        function loadAllData() {
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleString('zh-CN');
-            loadStats();
-            loadAppointments();
-            loadEmployees();
-        }
-
-        function loadStats() {
-            fetch(API_BASE + '/stats')
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    document.getElementById('todayApts').textContent = data.today_count || data.today_apts || '-';
-                    document.getElementById('pendingApts').textContent = data.pending_count || data.pending_apts || '-';
-                    document.getElementById('weeklyRevenue').textContent = '$' + (data.weekly_revenue || data.revenue || 0);
-                    document.getElementById('socialEngagement').textContent = data.social_engagement || data.social_total || '-';
-                    
-                    if (data.xhs_followers) document.getElementById('xhsFollowers').textContent = data.xhs_followers;
-                    if (data.xhs_likes) document.getElementById('xhsLikes').textContent = data.xhs_likes;
-                    if (data.xhs_collects) document.getElementById('xhsCollects').textContent = data.xhs_collects;
-                    if (data.tiktok_followers) document.getElementById('tiktokFollowers').textContent = data.tiktok_followers;
-                    if (data.tiktok_likes) document.getElementById('tiktokLikes').textContent = data.tiktok_likes;
-                    if (data.tiktok_shares) document.getElementById('tiktokShares').textContent = data.tiktok_shares;
-                    if (data.fb_followers) document.getElementById('fbFollowers').textContent = data.fb_followers;
-                    if (data.fb_engagement) document.getElementById('fbEngagement').textContent = data.fb_engagement;
-                    if (data.fb_messages) document.getElementById('fbMessages').textContent = data.fb_messages;
-
-                    if (data.pending_count) document.getElementById('pendingBadge').textContent = data.pending_count;
-                    if (data.xhs_pending) document.getElementById('xhsBadge').textContent = data.xhs_pending;
-                })
-                .catch(function(err) {
-                    console.error('Stats error:', err);
-                });
-        }
-
-        function loadAppointments() {
-            fetch(API_BASE + '/appointments')
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    allAppointments = data.appointments || data || [];
-                    if (currentFilter === 'today') {
-                        filterApts('today', false);
-                    } else {
-                        filterApts(currentFilter, false);
-                    }
-                    var pendingCount = allAppointments.filter(function(a) { return a.status === 'pending'; }).length;
-                    document.getElementById('pendingCount').textContent = pendingCount;
-                    document.getElementById('pendingBadge').textContent = pendingCount;
-                })
-                .catch(function(err) {
-                    console.error('Appointments error:', err);
-                    if (!fallbackToDemo) {
-                        fallbackToDemo = true;
-                        allAppointments = [
-                            { id: 1, date: '2026-05-08', time: '10:00', client_name: 'Lisa Wang', service_name: '面部护理', employee_name: 'Annie', status: 'confirmed', source: 'whatsapp' },
-                            { id: 2, date: '2026-05-08', time: '11:30', client_name: 'May Chen', service_name: '热石按摩', employee_name: 'Mei', status: 'pending', source: 'xiaohongshu' },
-                            { id: 3, date: '2026-05-08', time: '14:00', client_name: 'Jenny Lim', service_name: '深层清洁', employee_name: 'Lin', status: 'confirmed', source: 'tiktok' },
-                            { id: 4, date: '2026-05-08', time: '15:30', client_name: 'Sarah Tan', service_name: '芳香精油按摩', employee_name: 'Annie', status: 'cancelled', source: 'website' },
-                            { id: 5, date: '2026-05-09', time: '09:00', client_name: 'Amy Ng', service_name: '瑞典按摩', employee_name: 'Mei', status: 'pending', source: 'chat' }
-                        ];
-                        filterApts('today', false);
-                    }
-                });
-        }
-
-        var sourceIcons = {
-            'xiaohongshu': '<span class="source-icon source-xiaohongshu" title="小红书">📕</span>',
-            'tiktok': '<span class="source-icon source-tiktok" title="TikTok">🎵</span>',
-            'whatsapp': '<span class="source-icon source-whatsapp" title="WhatsApp">💬</span>',
-            'chat': '<span class="source-icon source-chat" title="在线咨询">💭</span>',
-            'website': '<span class="source-icon source-website" title="网站">🌐</span>'
-        };
-
-        var statusLabels = {
-            'confirmed': '已确认',
-            'pending': '待确认',
-            'cancelled': '已取消',
-            'rescheduled': '已改期'
-        };
-
-        function renderAppointments(apts) {
-            var tbody = document.getElementById('appointmentsTable');
-            if (!apts || apts.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:40px;">暂无预约</td></tr>';
-                return;
-            }
-            tbody.innerHTML = apts.map(function(a) {
-                var srcIcon = sourceIcons[a.source] || sourceIcons[a.source?.toLowerCase()] || '<span class="source-icon" title="其他">📋</span>';
-                var statusClass = 'status-' + (a.status || 'pending');
-                var statusText = statusLabels[a.status] || a.status;
-                var timeFormatted = formatTime(a.time);
-                return '<tr>' +
-                    '<td class="checkbox-cell"><input type="checkbox" class="apt-checkbox" value="' + a.id + '"></td>' +
-                    '<td>' + (a.date ? a.date.substring(5) + ' ' : '') + timeFormatted + '</td>' +
-                    '<td><strong>' + (a.client_name || '未填写') + '</strong></td>' +
-                    '<td>' + (a.service_name || '未选择') + '</td>' +
-                    '<td>' + (a.employee_name || '未指定') + '</td>' +
-                    '<td>' + srcIcon + '</td>' +
-                    '<td><span class="status-badge ' + statusClass + '">' + statusText + '</span></td>' +
-                    '<td>' +
-                        '<button class="btn btn-xs btn-success" onclick="confirmApt(' + a.id + ')" title="确认">✅</button> ' +
-                        '<button class="btn btn-xs btn-outline" onclick="rescheduleApt(' + a.id + ')" title="改期">📅</button> ' +
-                        '<button class="btn btn-xs btn-danger" onclick="deleteApt(' + a.id + ')" title="取消">❌</button> ' +
-                        '<button class="btn btn-xs btn-outline" onclick="viewApt(' + a.id + ')" title="详情">👁️</button>' +
-                    '</td>' +
-                '</tr>';
-            }).join('');
-        }
-
-        function filterApts(filter, fromEvent) {
-            currentFilter = filter;
-            var now = new Date();
-            var today = now.toISOString().split('T')[0];
-            var tomorrow = new Date(now);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            var tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-            var filtered = [];
-            if (filter === 'today') {
-                filtered = allAppointments.filter(function(a) { return a.date === today; });
-            } else if (filter === 'tomorrow') {
-                filtered = allAppointments.filter(function(a) { return a.date === tomorrowStr; });
-            } else if (filter === 'week') {
-                var weekEnd = new Date(now);
-                weekEnd.setDate(weekEnd.getDate() + 7);
-                var weekEndStr = weekEnd.toISOString().split('T')[0];
-                filtered = allAppointments.filter(function(a) { return a.date >= today && a.date <= weekEndStr; });
-            } else if (filter === 'pending') {
-                filtered = allAppointments.filter(function(a) { return a.status === 'pending'; });
-            } else {
-                filtered = allAppointments;
-            }
-
-            renderAppointments(filtered);
-
-            if (fromEvent !== false) {
-                document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-                if (fromEvent && fromEvent.currentTarget) {
-                    fromEvent.currentTarget.classList.add('active');
-                } else {
-                    document.querySelectorAll('.tab-btn').forEach(function(b) {
-                        if (b.textContent.trim().indexOf('今日') > -1 || b.textContent.trim().indexOf('Today') > -1) {
-                            b.classList.add('active');
-                        }
-                    });
-                }
-            }
-        }
-
-        function confirmApt(id) {
-            fetch(API_BASE + '/appointments/' + id, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'confirmed' })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                showToast('✅ 预约已确认', 'success');
-                loadAppointments();
-                loadStats();
-            })
-            .catch(function(err) {
-                showToast('✅ 预约已确认（本地）', 'success');
-                var apt = allAppointments.find(function(a) { return a.id === id; });
-                if (apt) apt.status = 'confirmed';
-                renderAppointments(allAppointments);
-            });
-        }
-
-        function viewApt(id) {
-            var apt = allAppointments.find(function(a) { return a.id === id; });
-            if (apt) {
-                alert('📋 预约详情\n\n顾客：' + (apt.client_name || '未填写') + '\n服务：' + (apt.service_name || '未选择') + '\n美容师：' + (apt.employee_name || '未指定') + '\n时间：' + (apt.date || '') + ' ' + (apt.time || '') + '\n状态：' + (statusLabels[apt.status] || apt.status) + '\n来源：' + (apt.source || '其他'));
-            }
-        }
-
-        function rescheduleApt(id) {
-            var apt = allAppointments.find(function(a) { return a.id === id; });
-            if (apt) {
-                var newDate = prompt('请输入新的日期 (YYYY-MM-DD):', apt.date || '');
-                if (newDate) {
-                    var newTime = prompt('请输入新的时间 (HH:MM):', apt.time || '');
-                    if (newTime) {
-                        fetch(API_BASE + '/appointments/' + id, {
-                            method: 'PATCH',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: 'rescheduled', date: newDate, time: newTime })
-                        })
-                        .then(function(r) { return r.json(); })
-                        .then(function(data) {
-                            showToast('📅 预约已改期', 'info');
-                            loadAppointments();
-                        })
-                        .catch(function(err) {
-                            showToast('📅 预约已改期（本地）', 'info');
-                            apt.date = newDate;
-                            apt.time = newTime;
-                            apt.status = 'rescheduled';
-                            renderAppointments(allAppointments);
-                        });
-                    }
-                }
-            }
-        }
-
-        function deleteApt(id) {
-            if (!confirm('确定要取消此预约吗？')) return;
-            fetch(API_BASE + '/appointments/' + id, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'cancelled' })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                showToast('❌ 预约已取消', 'error');
-                loadAppointments();
-                loadStats();
-            })
-            .catch(function(err) {
-                showToast('❌ 预约已取消（本地）', 'error');
-                var apt = allAppointments.find(function(a) { return a.id === id; });
-                if (apt) apt.status = 'cancelled';
-                renderAppointments(allAppointments);
-            });
-        }
-
-        function toggleAllApts(checkbox) {
-            document.querySelectorAll('.apt-checkbox').forEach(function(cb) {
-                cb.checked = checkbox.checked;
-            });
-        }
-
-        function loadEmployees() {
-            fetch(API_BASE + '/employees/all')
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    allEmployees = data.employees || data || [];
-                    renderEmployees(allEmployees);
-                })
-                .catch(function(err) {
-                    console.error('Employees error:', err);
-                    allEmployees = [
-                        { id: 1, name: 'Annie', role: '高级美容师', specialty: '面部护理、微针', avatar: null, today_apts: 5, weekly_revenue: 2800, rating: 4.9, active: true },
-                        { id: 2, name: 'Mei', role: '按摩专家', specialty: '热石按摩、精油SPA', avatar: null, today_apts: 6, weekly_revenue: 3200, rating: 4.8, active: true },
-                        { id: 3, name: 'Lin', role: '美容师', specialty: '深层清洁、焕肤', avatar: null, today_apts: 4, weekly_revenue: 2100, rating: 4.7, active: true }
-                    ];
-                    renderEmployees(allEmployees);
-                });
-        }
-
-        function renderEmployees(employees) {
-            var container = document.getElementById('employeesGrid');
-            if (!employees || employees.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:#999;padding:40px;grid-column:1/-1;">暂无员工数据</div>';
-                return;
-            }
-            container.innerHTML = employees.map(function(e) {
-                var initial = (e.name || '?')[0];
-                var color = e.color || '#c41e3a';
-                var activeText = e.active !== false ? '在职' : '已离职';
-                var actionBtn = e.active !== false ?
-                    '<button class="btn btn-sm btn-danger" onclick="markDeparture(' + e.id + ')">🚫 离职</button>' :
-                    '<button class="btn btn-sm btn-success" onclick="rehireEmployee(' + e.id + ')">🔄 复职</button>';
-                return '<div class="employee-card">' +
-                    '<div class="employee-card-top">' +
-                        '<div class="employee-avatar" style="background:' + color + ';">' + initial + '</div>' +
-                        '<div class="employee-info">' +
-                            '<div class="employee-name">' + (e.name || '未知') + ' <span style="font-size:12px;color:#999;font-weight:400;">' + activeText + '</span></div>' +
-                            '<div class="employee-role">' + (e.role || '美容师') + '</div>' +
-                            '<div class="employee-specialty">🏅 ' + (e.specialty || '通用') + '</div>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="employee-stats">' +
-                        '<div class="emp-stat"><div class="emp-stat-val">' + (e.today_apts || 0) + '</div><div class="emp-stat-lbl">今日预约</div></div>' +
-                        '<div class="emp-stat"><div class="emp-stat-val">$' + (e.weekly_revenue || 0) + '</div><div class="emp-stat-lbl">本周业绩</div></div>' +
-                        '<div class="emp-stat"><div class="emp-stat-val">' + (e.rating || '-') + '</div><div class="emp-stat-lbl">评分</div></div>' +
-                    '</div>' +
-                    '<div class="employee-actions">' +
-                        '<button class="btn btn-sm btn-outline" onclick="viewEmpStats(' + e.id + ')">📊 业绩</button>' +
-                        '<button class="btn btn-sm btn-outline" onclick="viewEmpSchedule(' + e.id + ')">📅 排班</button>' +
-                        '<button class="btn btn-sm btn-outline" onclick="editEmployee(' + e.id + ')">✏️ 编辑</button>' +
-                        actionBtn +
-                    '</div>' +
-                '</div>';
-            }).join('');
-        }
-
-        function markDeparture(empId) {
-            if (!confirm('确定将此员工标记为离职？')) return;
-            fetch(API_BASE + '/employees/' + empId, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ active: false })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                showToast('🚫 员工已标记为离职', 'warning');
-                loadEmployees();
-            })
-            .catch(function(err) {
-                showToast('🚫 已本地标记离职', 'warning');
-                var emp = allEmployees.find(function(e) { return e.id === empId; });
-                if (emp) emp.active = false;
-                renderEmployees(allEmployees);
-            });
-        }
-
-        function rehireEmployee(empId) {
-            if (!confirm('确定要复职此员工？')) return;
-            fetch(API_BASE + '/employees/' + empId, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ active: true })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                showToast('🔄 员工已复职', 'success');
-                loadEmployees();
-            })
-            .catch(function(err) {
-                showToast('🔄 已本地复职', 'success');
-                var emp = allEmployees.find(function(e) { return e.id === empId; });
-                if (emp) emp.active = true;
-                renderEmployees(allEmployees);
-            });
-        }
-
-        function exportAppointments() {
-            var csv = '\uFEFF预约ID,日期,时间,顾客,服务,美容师,来源,状态\n';
-            allAppointments.forEach(function(a) {
-                csv += (a.id || '') + ',' + (a.date || '') + ',' + (a.time || '') + ',' + (a.client_name || '') + ',' + (a.service_name || '') + ',' + (a.employee_name || '') + ',' + (a.source || '') + ',' + (a.status || '') + '\n';
-            });
-            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            var link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = '预约数据_' + new Date().toISOString().split('T')[0] + '.csv';
-            link.click();
-            showToast('📥 导出成功', 'success');
-        }
-
-        function openAddAptModal() {
-            var name = prompt('顾客姓名：');
-            if (!name) return;
-            var service = prompt('服务项目：', '面部护理');
-            if (!service) return;
-            var date = prompt('日期 (YYYY-MM-DD)：', new Date().toISOString().split('T')[0]);
-            if (!date) return;
-            var time = prompt('时间 (HH:MM)：', '10:00');
-            if (!time) return;
-            var employeeName = prompt('美容师：', 'Annie');
-            if (!employeeName) return;
-
-            fetch(API_BASE + '/appointments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    client_name: name,
-                    service_name: service,
-                    date: date,
-                    time: time,
-                    employee_name: employeeName,
-                    status: 'pending',
-                    source: 'manual'
-                })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                showToast('✅ 预约已添加', 'success');
-                loadAppointments();
-                loadStats();
-            })
-            .catch(function(err) {
-                showToast('✅ 预约已添加（本地）', 'success');
-                allAppointments.push({
-                    id: Date.now(),
-                    client_name: name,
-                    service_name: service,
-                    date: date,
-                    time: time,
-                    employee_name: employeeName,
-                    status: 'pending',
-                    source: 'manual'
-                });
-                filterApts(currentFilter, false);
-            });
-        }
-
-        // Employee CRUD
-        function openAddEmpModal() {
-            document.getElementById('employeeModalTitle').textContent = '添加员工';
-            document.getElementById('empId').value = '';
-            document.getElementById('empName').value = '';
-            document.getElementById('empRole').value = '';
-            document.getElementById('empSpecialty').value = '';
-            document.getElementById('empPhone').value = '';
-            document.getElementById('empEmail').value = '';
-            document.getElementById('empColor').value = '#c41e3a';
-            document.querySelectorAll('.color-option').forEach(function(c) { c.classList.remove('selected'); });
-            document.querySelector('.color-option').classList.add('selected');
-            document.getElementById('employeeModal').classList.add('active');
-        }
-
-        function closeEmpModal() {
-            document.getElementById('employeeModal').classList.remove('active');
-        }
-
-        function editEmployee(empId) {
-            var emp = allEmployees.find(function(e) { return e.id === empId; });
-            if (!emp) return;
-            document.getElementById('employeeModalTitle').textContent = '编辑员工';
-            document.getElementById('empId').value = emp.id;
-            document.getElementById('empName').value = emp.name || '';
-            document.getElementById('empRole').value = emp.role || '';
-            document.getElementById('empSpecialty').value = emp.specialty || '';
-            document.getElementById('empPhone').value = emp.phone || '';
-            document.getElementById('empEmail').value = emp.email || '';
-            document.getElementById('empColor').value = emp.color || '#c41e3a';
-            document.querySelectorAll('.color-option').forEach(function(c) {
-                c.classList.toggle('selected', c.getAttribute('data-color') === (emp.color || '#c41e3a'));
-            });
-            document.getElementById('employeeModal').classList.add('active');
-        }
-
-        function saveEmployee() {
-            var data = {
-                name: document.getElementById('empName').value,
-                role: document.getElementById('empRole').value,
-                specialty: document.getElementById('empSpecialty').value,
-                phone: document.getElementById('empPhone').value,
-                email: document.getElementById('empEmail').value,
-                color: document.getElementById('empColor').value
-            };
-            var empId = document.getElementById('empId').value;
-
-            if (!data.name) {
-                showToast('请输入员工姓名', 'error');
-                return;
-            }
-
-            var url = empId ? API_BASE + '/employees/' + empId : API_BASE + '/employees';
-            var method = empId ? 'PATCH' : 'POST';
-
-            fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(result) {
-                closeEmpModal();
-                showToast(empId ? '✅ 员工信息已更新' : '✅ 员工已添加', 'success');
-                loadEmployees();
-            })
-            .catch(function(err) {
-                closeEmpModal();
-                showToast(empId ? '✅ 员工信息已更新（本地）' : '✅ 员工已添加（本地）', 'success');
-                if (empId) {
-                    var emp = allEmployees.find(function(e) { return e.id === parseInt(empId); });
-                    if (emp) {
-                        emp.name = data.name;
-                        emp.role = data.role;
-                        emp.specialty = data.specialty;
-                        emp.phone = data.phone;
-                        emp.email = data.email;
-                        emp.color = data.color;
-                    }
-                } else {
-                    data.id = Date.now();
-                    data.today_apts = 0;
-                    data.weekly_revenue = 0;
-                    data.rating = '-';
-                    data.active = true;
-                    allEmployees.push(data);
-                }
-                renderEmployees(allEmployees);
-            });
-        }
-
-        function selectColor(el) {
-            document.querySelectorAll('.color-option').forEach(function(c) { c.classList.remove('selected'); });
-            el.classList.add('selected');
-            document.getElementById('empColor').value = el.getAttribute('data-color');
-        }
-
-        function viewEmpStats(empId) {
-            var emp = allEmployees.find(function(e) { return e.id === empId; });
-            if (emp) {
-                alert('📊 ' + (emp.name || '员工') + ' 业绩\n\n今日预约：' + (emp.today_apts || 0) + '\n本周业绩：$' + (emp.weekly_revenue || 0) + '\n评分：' + (emp.rating || '-'));
-            }
-        }
-
-        function viewEmpSchedule(empId) {
-            var emp = allEmployees.find(function(e) { return e.id === empId; });
-            if (emp) {
-                alert('📅 ' + (emp.name || '员工') + ' 排班\n\n排班功能开发中...');
-            }
-        }
-
-        // Note functions
-        function createNote() {
-            showSection('xiaohongshu');
-        }
-
-        function useTemplate(type) {
-            var templates = {
-                'facial': '✨ 解锁肌肤新境界！\n\n💆 深层清洁 + 补水保湿\n🌸 适合所有肤质\n🎉 限时特惠 $68起\n\n📍 I BEAUTY CENTRE\n📱 私信预约享折扣！',
-                'massage': '🌟 逃离喧嚣，遇见更好的自己\n\n🕯 芳香精油按摩 60min\n🔥 热石疗法深度放松\n💎 瑞典按摩舒缓压力\n\n🎁 新客专享 $88体验价\n📲 私信预约即可享受',
-                'promotion': '🔥 限时特惠！错过等一年！\n\n🎊 买二送一：任意面部护理\n💫 双人同行 7折优惠\n🎀 闺蜜套餐仅 $128/2人\n\n⏰ 活动截止：本周日\n💬 评论区扣1获取优惠券'
-            };
-            var text = templates[type] || '';
-            if (text) {
-                copyNote(text);
-            }
-        }
-
-        function copyNote(text) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(function() {
-                    showToast('📋 笔记模板已复制到剪贴板！', 'success');
-                }).catch(function() {
-                    fallbackCopy(text);
-                });
-            } else {
-                fallbackCopy(text);
-            }
-        }
-
-        function fallbackCopy(text) {
-            var ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed';
-            ta.style.opacity = '0';
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-            showToast('📋 笔记模板已复制到剪贴板！', 'success');
-        }
-
-        // Report functions
-        function generateReport() {
-            var today = new Date().toISOString().split('T')[0];
-            var confirmed = allAppointments.filter(function(a) { return a.status === 'confirmed'; }).length;
-            var pending = allAppointments.filter(function(a) { return a.status === 'pending'; }).length;
-            var cancelled = allAppointments.filter(function(a) { return a.status === 'cancelled'; }).length;
-            var todayApts = allAppointments.filter(function(a) { return a.date === today; });
-
-            var report = '📊 *I BEAUTY 每日报告*\n';
-            report += '日期：' + today + '\n';
-            report += '生成时间：' + new Date().toLocaleString('zh-CN') + '\n\n';
-            report += '═════════════════\n';
-            report += '📅 *今日预约* (' + todayApts.length + '个)\n';
-            report += '═════════════════\n';
-            report += '确认：' + todayApts.filter(function(a) { return a.status === 'confirmed'; }).length + '\n';
-            report += '待确认：' + todayApts.filter(function(a) { return a.status === 'pending'; }).length + '\n';
-            report += '取消：' + todayApts.filter(function(a) { return a.status === 'cancelled'; }).length + '\n\n';
-            report += '今日预约详情：\n';
-            report += todayApts.map(function(a) {
-                return '• ' + (a.time || '') + ' ' + (a.client_name || '未填写') + ' - ' + (a.service_name || '未选择') + ' (' + (statusLabels[a.status] || a.status) + ')';
-            }).join('\n') || '暂无预约';
-            report += '\n\n═════════════════\n';
-            report += '👩 *员工状态*\n';
-            report += '═════════════════\n';
-            allEmployees.forEach(function(e) {
-                report += (e.name || '未知') + ': ' + (e.today_apts || 0) + ' 个预约\n';
-            });
-            report += '\n═════════════════\n';
-            report += '💡 *建议*\n';
-            report += '═════════════════\n';
-            report += '• 明日预约已满 80%，建议安排加班\n';
-            report += '• 下午 2-4 点有空档，可安排临时预约\n';
-
-            showSection('reports');
-            showToast('📄 报告已生成', 'info');
-            return report;
-        }
-
-        function sendWhatsAppReport() {
-            var report = generateReport();
-            var bossPhone = document.getElementById('bossNumber') ? document.getElementById('bossNumber').value : '6593391705';
-            var whatsappUrl = 'https://wa.me/' + bossPhone + '?text=' + encodeURIComponent(report);
-            window.open(whatsappUrl, '_blank');
-            showToast('📤 即将打开 WhatsApp', 'success');
-        }
-
-        // Initial load
-        loadAllData();
-
-        // Auto-refresh every 60 seconds
-        setInterval(loadAllData, 60000);
-
-        // Initial filter
-        filterApts('today', false);
-    </script>
-</body>
-</html>
+     1|<!DOCTYPE html>
+     2|<html lang="zh-CN">
+     3|<head>
+     4|    <meta charset="UTF-8">
+     5|    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|    <title>I BEAUTY CENTRE | 管理后台</title>
+     7|    <style>
+     8|        :root {
+     9|            --primary: #c41e3a;
+    10|            --primary-dark: #a01830;
+    11|            --success: #25d366;
+    12|            --warning: #f59e0b;
+    13|            --danger: #dc2626;
+    14|            --info: #0088cc;
+    15|            --bg: #f5f7fa;
+    16|            --card: #ffffff;
+    17|            --sidebar: #1a1a2e;
+    18|            --text: #2c3e50;
+    19|            --text-light: #7f8c8d;
+    20|            --border: #e0e0e0;
+    21|            --xhs: #ff2442;
+    22|            --tiktok: #00f2ea;
+    23|            --facebook: #1877f2;
+    24|        }
+    25|
+    26|        * { margin: 0; padding: 0; box-sizing: border-box; }
+    27|
+    28|        body {
+    29|            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+    30|            background: var(--bg);
+    31|            display: flex;
+    32|            min-height: 100vh;
+    33|            color: var(--text);
+    34|        }
+    35|
+    36|        .sidebar {
+    37|            width: 260px;
+    38|            background: var(--sidebar);
+    39|            color: white;
+    40|            padding: 24px 0;
+    41|            position: fixed;
+    42|            height: 100vh;
+    43|            overflow-y: auto;
+    44|            display: flex;
+    45|            flex-direction: column;
+    46|        }
+    47|
+    48|        .sidebar-logo {
+    49|            padding: 0 24px 24px;
+    50|            border-bottom: 1px solid rgba(255,255,255,0.1);
+    51|        }
+    52|
+    53|        .sidebar-logo h2 { font-size: 18px; font-weight: 500; color: white; }
+    54|        .sidebar-logo span { color: var(--primary); }
+    55|
+    56|        .nav-section {
+    57|            padding: 16px 0;
+    58|            border-bottom: 1px solid rgba(255,255,255,0.08);
+    59|        }
+    60|
+    61|        .nav-section-title {
+    62|            padding: 0 24px 8px;
+    63|            font-size: 11px;
+    64|            text-transform: uppercase;
+    65|            letter-spacing: 0.05em;
+    66|            color: rgba(255,255,255,0.35);
+    67|            font-weight: 500;
+    68|        }
+    69|
+    70|        .nav-item {
+    71|            padding: 11px 24px;
+    72|            color: rgba(255,255,255,0.7);
+    73|            cursor: pointer;
+    74|            display: flex;
+    75|            align-items: center;
+    76|            gap: 12px;
+    77|            transition: all 0.2s;
+    78|            font-size: 14px;
+    79|            text-decoration: none;
+    80|            border-left: 3px solid transparent;
+    81|        }
+    82|
+    83|        .nav-item:hover, .nav-item.active {
+    84|            background: rgba(255,255,255,0.1);
+    85|            color: white;
+    86|            border-left-color: var(--primary);
+    87|        }
+    88|
+    89|        .nav-item .nav-icon { font-size: 16px; width: 22px; text-align: center; }
+    90|
+    91|        .nav-badge {
+    92|            margin-left: auto;
+    93|            background: var(--primary);
+    94|            color: white;
+    95|            font-size: 11px;
+    96|            padding: 2px 8px;
+    97|            border-radius: 10px;
+    98|            font-weight: 600;
+    99|            min-width: 20px;
+   100|            text-align: center;
+   101|        }
+   102|
+   103|        .nav-section.system-section {
+   104|            margin-top: auto;
+   105|            border-bottom: none;
+   106|            border-top: 1px solid rgba(255,255,255,0.08);
+   107|        }
+   108|
+   109|        .main-content {
+   110|            flex: 1;
+   111|            margin-left: 260px;
+   112|            padding: 32px;
+   113|        }
+   114|
+   115|        .page-header {
+   116|            display: flex;
+   117|            justify-content: space-between;
+   118|            align-items: center;
+   119|            margin-bottom: 32px;
+   120|            flex-wrap: wrap;
+   121|            gap: 12px;
+   122|        }
+   123|
+   124|        .page-header h1 { font-size: 28px; color: var(--sidebar); }
+   125|
+   126|        .page-subtitle {
+   127|            font-size: 14px;
+   128|            color: var(--text-light);
+   129|            margin-top: 4px;
+   130|        }
+   131|
+   132|        .page-header-left {}
+   133|        .page-header-right {
+   134|            display: flex;
+   135|            gap: 10px;
+   136|            flex-wrap: wrap;
+   137|        }
+   138|
+   139|        .btn {
+   140|            padding: 10px 20px;
+   141|            border-radius: 8px;
+   142|            border: none;
+   143|            cursor: pointer;
+   144|            font-size: 14px;
+   145|            font-weight: 500;
+   146|            display: inline-flex;
+   147|            align-items: center;
+   148|            gap: 8px;
+   149|            transition: all 0.2s;
+   150|            white-space: nowrap;
+   151|        }
+   152|
+   153|        .btn-primary { background: var(--primary); color: white; }
+   154|        .btn-primary:hover { background: #a01830; }
+   155|        .btn-outline { background: transparent; border: 1px solid #e0e0e0; color: var(--sidebar); }
+   156|        .btn-outline:hover { background: #f0f0f0; }
+   157|        .btn-success { background: var(--success); color: white; }
+   158|        .btn-success:hover { background: #1ebe5d; }
+   159|        .btn-danger { background: var(--danger); color: white; }
+   160|        .btn-danger:hover { background: #b91c1c; }
+   161|        .btn-sm { padding: 6px 12px; font-size: 12px; }
+   162|        .btn-xs { padding: 4px 8px; font-size: 11px; border-radius: 4px; }
+   163|
+   164|        .stats-grid {
+   165|            display: grid;
+   166|            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+   167|            gap: 20px;
+   168|            margin-bottom: 32px;
+   169|        }
+   170|
+   171|        .stat-card {
+   172|            background: var(--card);
+   173|            padding: 24px;
+   174|            border-radius: 12px;
+   175|            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+   176|        }
+   177|
+   178|        .stat-label { font-size: 13px; color: #666; margin-bottom: 8px; }
+   179|        .stat-value { font-size: 32px; font-weight: 600; color: var(--sidebar); }
+   180|        .stat-change { font-size: 12px; margin-top: 8px; }
+   181|        .stat-change.up { color: var(--success); }
+   182|        .stat-change.down { color: var(--danger); }
+   183|
+   184|        .social-grid {
+   185|            display: grid;
+   186|            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+   187|            gap: 20px;
+   188|            margin-bottom: 32px;
+   189|        }
+   190|
+   191|        .social-card {
+   192|            background: var(--card);
+   193|            border-radius: 12px;
+   194|            padding: 24px;
+   195|            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+   196|            border-top: 4px solid var(--border);
+   197|        }
+   198|
+   199|        .social-card.xhs { border-top-color: var(--xhs); }
+   200|        .social-card.tiktok { border-top-color: var(--tiktok); }
+   201|        .social-card.facebook { border-top-color: var(--facebook); }
+   202|
+   203|        .social-card h3 { font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+   204|        .social-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+   205|        .social-stat { text-align: center; }
+   206|        .social-stat .val { font-size: 20px; font-weight: 600; color: var(--sidebar); }
+   207|        .social-stat .lbl { font-size: 11px; color: #999; margin-top: 2px; }
+   208|
+   209|        .quick-actions {
+   210|            display: flex;
+   211|            gap: 12px;
+   212|            flex-wrap: wrap;
+   213|            margin-bottom: 24px;
+   214|        }
+   215|
+   216|        .quick-action-btn {
+   217|            display: flex;
+   218|            flex-direction: column;
+   219|            align-items: center;
+   220|            justify-content: center;
+   221|            gap: 8px;
+   222|            padding: 20px 24px;
+   223|            background: var(--card);
+   224|            border-radius: 12px;
+   225|            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+   226|            cursor: pointer;
+   227|            transition: all 0.2s;
+   228|            border: none;
+   229|            font-size: 13px;
+   230|            color: var(--text);
+   231|            min-width: 100px;
+   232|        }
+   233|
+   234|        .quick-action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+   235|        .quick-action-btn .qa-icon { font-size: 28px; }
+   236|
+   237|        .card {
+   238|            background: var(--card);
+   239|            border-radius: 12px;
+   240|            padding: 24px;
+   241|            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+   242|            margin-bottom: 24px;
+   243|        }
+   244|
+   245|        .card-header {
+   246|            display: flex;
+   247|            justify-content: space-between;
+   248|            align-items: center;
+   249|            margin-bottom: 20px;
+   250|            flex-wrap: wrap;
+   251|            gap: 12px;
+   252|        }
+   253|
+   254|        .card-header h3 { font-size: 18px; color: var(--sidebar); }
+   255|
+   256|        table {
+   257|            width: 100%;
+   258|            border-collapse: collapse;
+   259|        }
+   260|
+   261|        th, td {
+   262|            padding: 12px;
+   263|            text-align: left;
+   264|            border-bottom: 1px solid #e0e0e0;
+   265|            font-size: 14px;
+   266|        }
+   267|
+   268|        th { font-weight: 500; color: #666; font-size: 13px; background: #f8f9fa; }
+   269|
+   270|        .status-badge {
+   271|            padding: 4px 12px;
+   272|            border-radius: 12px;
+   273|            font-size: 12px;
+   274|            font-weight: 500;
+   275|            display: inline-block;
+   276|        }
+   277|
+   278|        .status-confirmed { background: rgba(37,211,102,0.15); color: var(--success); }
+   279|        .status-pending { background: rgba(245,158,11,0.15); color: var(--warning); }
+   280|        .status-cancelled { background: rgba(220,38,38,0.15); color: var(--danger); }
+   281|        .status-rescheduled { background: rgba(0,136,204,0.15); color: var(--info); }
+   282|
+   283|        .source-icon { font-size: 16px; }
+   284|        .source-xiaohongshu { color: var(--xhs); }
+   285|        .source-tiktok { color: var(--tiktok); }
+   286|        .source-whatsapp { color: var(--success); }
+   287|        .source-chat { color: var(--info); }
+   288|        .source-website { color: #666; }
+   289|
+   290|        .tab-bar {
+   291|            display: flex;
+   292|            gap: 4px;
+   293|            margin-bottom: 20px;
+   294|            background: #f0f0f0;
+   295|            border-radius: 8px;
+   296|            padding: 4px;
+   297|            flex-wrap: wrap;
+   298|        }
+   299|
+   300|        .tab-btn {
+   301|            padding: 8px 16px;
+   302|            border: none;
+   303|            background: transparent;
+   304|            cursor: pointer;
+   305|            font-size: 13px;
+   306|            border-radius: 6px;
+   307|            color: #666;
+   308|            font-weight: 500;
+   309|            transition: all 0.2s;
+   310|        }
+   311|
+   312|        .tab-btn.active {
+   313|            background: white;
+   314|            color: var(--sidebar);
+   315|            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+   316|        }
+   317|
+   318|        .tab-btn:hover:not(.active) { color: var(--sidebar); }
+   319|
+   320|        .employee-grid {
+   321|            display: grid;
+   322|            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+   323|            gap: 20px;
+   324|        }
+   325|
+   326|        .employee-card {
+   327|            background: var(--card);
+   328|            border-radius: 12px;
+   329|            padding: 20px;
+   330|            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+   331|            display: flex;
+   332|            flex-direction: column;
+   333|            gap: 16px;
+   334|        }
+   335|
+   336|        .employee-card-top {
+   337|            display: flex;
+   338|            align-items: center;
+   339|            gap: 16px;
+   340|        }
+   341|
+   342|        .employee-avatar {
+   343|            width: 56px;
+   344|            height: 56px;
+   345|            border-radius: 50%;
+   346|            background: var(--primary);
+   347|            color: white;
+   348|            display: flex;
+   349|            align-items: center;
+   350|            justify-content: center;
+   351|            font-weight: 600;
+   352|            font-size: 22px;
+   353|            flex-shrink: 0;
+   354|        }
+   355|
+   356|        .employee-info { flex: 1; }
+   357|        .employee-name { font-weight: 600; color: var(--sidebar); font-size: 16px; }
+   358|        .employee-role { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+   359|        .employee-specialty { font-size: 12px; color: #999; margin-top: 2px; }
+   360|
+   361|        .employee-stats {
+   362|            display: grid;
+   363|            grid-template-columns: repeat(3, 1fr);
+   364|            gap: 8px;
+   365|            text-align: center;
+   366|            padding: 12px;
+   367|            background: #f8f9fa;
+   368|            border-radius: 8px;
+   369|        }
+   370|
+   371|        .emp-stat .emp-stat-val { font-size: 18px; font-weight: 600; color: var(--sidebar); }
+   372|        .emp-stat .emp-stat-lbl { font-size: 11px; color: #999; }
+   373|
+   374|        .employee-actions {
+   375|            display: flex;
+   376|            gap: 8px;
+   377|            flex-wrap: wrap;
+   378|        }
+   379|
+   380|        .template-cards {
+   381|            display: grid;
+   382|            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+   383|            gap: 16px;
+   384|            margin-top: 16px;
+   385|        }
+   386|
+   387|        .template-card {
+   388|            background: #f8f9fa;
+   389|            border: 1px solid #e0e0e0;
+   390|            border-radius: 8px;
+   391|            padding: 16px;
+   392|            cursor: pointer;
+   393|            transition: all 0.2s;
+   394|        }
+   395|
+   396|        .template-card:hover { border-color: var(--primary); background: #fff5f5; }
+   397|        .template-card h4 { font-size: 14px; margin-bottom: 8px; color: var(--sidebar); }
+   398|        .template-card p { font-size: 13px; color: #666; line-height: 1.5; }
+   399|        .template-card .template-actions { margin-top: 12px; display: flex; gap: 8px; }
+   400|
+   401|        .content-grid {
+   402|            display: grid;
+   403|            grid-template-columns: repeat(7, 1fr);
+   404|            gap: 8px;
+   405|        }
+   406|
+   407|        .content-day {
+   408|            background: var(--card);
+   409|            border-radius: 8px;
+   410|            padding: 12px;
+   411|            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+   412|            min-height: 120px;
+   413|        }
+   414|
+   415|        .content-day .day-label { font-size: 12px; color: #999; margin-bottom: 8px; font-weight: 500; }
+   416|        .content-day .day-num { font-size: 20px; font-weight: 600; color: var(--sidebar); margin-bottom: 8px; }
+   417|        .content-day .platform-tag {
+   418|            display: inline-block;
+   419|            padding: 2px 8px;
+   420|            border-radius: 4px;
+   421|            font-size: 11px;
+   422|            margin-bottom: 4px;
+   423|            margin-right: 4px;
+   424|        }
+   425|
+   426|        .platform-xhs { background: rgba(255,36,66,0.15); color: var(--xhs); }
+   427|        .platform-tiktok { background: rgba(0,242,234,0.15); color: #009688; }
+   428|        .platform-facebook { background: rgba(24,119,242,0.15); color: var(--facebook); }
+   429|
+   430|        .chart-bar {
+   431|            display: flex;
+   432|            align-items: end;
+   433|            gap: 12px;
+   434|            height: 200px;
+   435|            padding: 20px 0;
+   436|        }
+   437|
+   438|        .chart-bar-item {
+   439|            flex: 1;
+   440|            display: flex;
+   441|            flex-direction: column;
+   442|            align-items: center;
+   443|            gap: 6px;
+   444|        }
+   445|
+   446|        .chart-bar-item .bar {
+   447|            width: 100%;
+   448|            max-width: 40px;
+   449|            background: var(--primary);
+   450|            border-radius: 4px 4px 0 0;
+   451|            min-height: 4px;
+   452|            transition: height 0.3s;
+   453|        }
+   454|
+   455|        .chart-bar-item .bar-label { font-size: 11px; color: #999; }
+   456|
+   457|        .modal-overlay {
+   458|            display: none;
+   459|            position: fixed;
+   460|            top: 0; left: 0; right: 0; bottom: 0;
+   461|            background: rgba(0,0,0,0.5);
+   462|            z-index: 1000;
+   463|            align-items: center;
+   464|            justify-content: center;
+   465|        }
+   466|
+   467|        .modal-overlay.active { display: flex; }
+   468|
+   469|        .modal {
+   470|            background: var(--card);
+   471|            border-radius: 16px;
+   472|            padding: 32px;
+   473|            width: 90%;
+   474|            max-width: 500px;
+   475|            max-height: 90vh;
+   476|            overflow-y: auto;
+   477|        }
+   478|
+   479|        .modal h2 { font-size: 20px; margin-bottom: 24px; color: var(--sidebar); }
+   480|
+   481|        .form-group {
+   482|            margin-bottom: 16px;
+   483|        }
+   484|
+   485|        .form-group label {
+   486|            display: block;
+   487|            font-size: 13px;
+   488|            color: #666;
+   489|            margin-bottom: 6px;
+   490|            font-weight: 500;
+   491|        }
+   492|
+   493|        .form-group input, .form-group select {
+   494|            width: 100%;
+   495|            padding: 10px 14px;
+   496|            border: 1px solid var(--border);
+   497|            border-radius: 8px;
+   498|            font-size: 14px;
+   499|            transition: border-color 0.2s;
+   500|        }
+   501|
+   502|        .form-group input:focus, .form-group select:focus {
+   503|            outline: none;
+   504|            border-color: var(--primary);
+   505|        }
+   506|
+   507|        .color-options {
+   508|            display: flex;
+   509|            gap: 12px;
+   510|        }
+   511|
+   512|        .color-option {
+   513|            width: 32px;
+   514|            height: 32px;
+   515|            border-radius: 50%;
+   516|            cursor: pointer;
+   517|            border: 3px solid transparent;
+   518|            transition: all 0.2s;
+   519|        }
+   520|
+   521|        .color-option.selected { border-color: var(--sidebar); }
+   522|        .color-option:hover { transform: scale(1.1); }
+   523|
+   524|        .modal-actions {
+   525|            display: flex;
+   526|            gap: 12px;
+   527|            justify-content: flex-end;
+   528|            margin-top: 24px;
+   529|        }
+   530|
+   531|        .toast {
+   532|            position: fixed;
+   533|            bottom: 32px;
+   534|            right: 32px;
+   535|            padding: 14px 24px;
+   536|            border-radius: 12px;
+   537|            color: white;
+   538|            font-size: 14px;
+   539|            z-index: 2000;
+   540|            opacity: 0;
+   541|            transform: translateY(20px);
+   542|            transition: all 0.3s;
+   543|            pointer-events: none;
+   544|            max-width: 400px;
+   545|        }
+   546|
+   547|        .toast.show {
+   548|            opacity: 1;
+   549|            transform: translateY(0);
+   550|        }
+   551|
+   552|        .toast-success { background: var(--success); }
+   553|        .toast-error { background: var(--danger); }
+   554|        .toast-info { background: var(--info); }
+   555|        .toast-warning { background: var(--warning); }
+   556|
+   557|        .toggle-switch {
+   558|            position: relative;
+   559|            width: 44px;
+   560|            height: 24px;
+   561|            display: inline-block;
+   562|        }
+   563|
+   564|        .toggle-switch input {
+   565|            opacity: 0;
+   566|            width: 0;
+   567|            height: 0;
+   568|        }
+   569|
+   570|        .toggle-slider {
+   571|            position: absolute;
+   572|            cursor: pointer;
+   573|            top: 0; left: 0; right: 0; bottom: 0;
+   574|            background: #ccc;
+   575|            border-radius: 24px;
+   576|            transition: 0.3s;
+   577|        }
+   578|
+   579|        .toggle-slider:before {
+   580|            content: "";
+   581|            position: absolute;
+   582|            height: 18px;
+   583|            width: 18px;
+   584|            left: 3px;
+   585|            bottom: 3px;
+   586|            background: white;
+   587|            border-radius: 50%;
+   588|            transition: 0.3s;
+   589|        }
+   590|
+   591|        .toggle-switch input:checked + .toggle-slider { background: var(--success); }
+   592|        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+   593|
+   594|        .checkbox-cell {
+   595|            width: 40px;
+   596|            text-align: center;
+   597|        }
+   598|
+   599|        @media (max-width: 768px) {
+   600|            .sidebar { display: none; }
+   601|            .main-content { margin-left: 0; padding: 16px; }
+   602|            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+   603|            .content-grid { grid-template-columns: repeat(2, 1fr); }
+   604|            .employee-grid { grid-template-columns: 1fr; }
+   605|        }
+   606|    </style>
+   607|</head>
+   608|<body>
+   609|    <aside class="sidebar">
+   610|        <div class="sidebar-logo">
+   611|            <h2>I BEAUTY <span>CENTRE</span></h2>
+   612|        </div>
+   613|
+   614|        <nav class="nav-section">
+   615|            <div class="nav-section-title">核心业务</div>
+   616|            <div class="nav-item active" onclick="showSection('dashboard')">
+   617|                <span class="nav-icon">📊</span> Dashboard
+   618|            </div>
+   619|            <div class="nav-item" onclick="showSection('appointments')">
+   620|                <span class="nav-icon">📅</span> 预约管理
+   621|                <span class="nav-badge" id="pendingBadge">0</span>
+   622|            </div>
+   623|            <div class="nav-item" onclick="showSection('employees')">
+   624|                <span class="nav-icon">👩</span> 员工管理
+   625|            </div>
+   626|            <div class="nav-item" onclick="showSection('customers')">
+   627|                <span class="nav-icon">👥</span> 客户管理
+   628|            </div>
+   629|            <div class="nav-item" onclick="window.open('finance.html', '_blank')">
+   630|                <span class="nav-icon">💰</span> 财务管理
+   631|            </div>
+   632|        </nav>
+   633|
+   634|        <nav class="nav-section">
+   635|            <div class="nav-section-title">社交媒体</div>
+   636|            <div class="nav-item" onclick="showSection('xiaohongshu')" style="--accent: #ff2442;">
+   637|                <span class="nav-icon">📕</span> 小红书
+   638|                <span class="nav-badge" id="xhsBadge" style="background:#ff2442;">0</span>
+   639|            </div>
+   640|            <div class="nav-item" onclick="showSection('tiktok')" style="--accent: #00f2ea;">
+   641|                <span class="nav-icon">🎵</span> TikTok
+   642|            </div>
+   643|            <div class="nav-item" onclick="showSection('facebook')" style="--accent: #1877f2;">
+   644|                <span class="nav-icon">📘</span> Facebook
+   645|            </div>
+   646|        </nav>
+   647|
+   648|        <nav class="nav-section">
+   649|            <div class="nav-section-title">营销推广</div>
+   650|            <div class="nav-item" onclick="showSection('content')">
+   651|                <span class="nav-icon">📝</span> 内容日历
+   652|            </div>
+   653|            <div class="nav-item" onclick="showSection('reports')">
+   654|                <span class="nav-icon">📈</span> 数据报表
+   655|            </div>
+   656|        </nav>
+   657|
+   658|        <nav class="nav-section system-section">
+   659|            <div class="nav-section-title">系统</div>
+   660|            <div class="nav-item" onclick="showSection('settings')">
+   661|                <span class="nav-icon">⚙️</span> 设置
+   662|            </div>
+   663|            <div class="nav-item" onclick="window.open('/', '_blank')">
+   664|                <span class="nav-icon">🏠</span> 返回官网
+   665|            </div>
+   666|        </nav>
+   667|    </aside>
+   668|
+   669|    <main class="main-content">
+   670|        <!-- Dashboard Section -->
+   671|        <section id="dashboard" class="section active">
+   672|            <div class="page-header">
+   673|                <div class="page-header-left">
+   674|                    <h1>📊 Dashboard</h1>
+   675|                    <div class="page-subtitle">实时业务概览 · 最后更新：<span id="lastUpdate">刚刚</span></div>
+   676|                </div>
+   677|                <div class="page-header-right">
+   678|                    <button class="btn btn-outline" onclick="loadAllData()">🔄 刷新</button>
+   679|                    <button class="btn btn-outline" onclick="generateReport()">📄 生成日报</button>
+   680|                    <button class="btn btn-success" onclick="sendWhatsAppReport()">📤 WhatsApp 发送</button>
+   681|                </div>
+   682|            </div>
+   683|
+   684|            <div class="stats-grid">
+   685|                <div class="stat-card">
+   686|                    <div class="stat-label">📅 今日预约</div>
+   687|                    <div class="stat-value" id="todayApts">-</div>
+   688|                    <div class="stat-change up" id="todayAptChange">实时更新</div>
+   689|                </div>
+   690|                <div class="stat-card">
+   691|                    <div class="stat-label">⏳ 待确认</div>
+   692|                    <div class="stat-value" id="pendingApts">-</div>
+   693|                    <div class="stat-change up" id="pendingAptChange">等待处理</div>
+   694|                </div>
+   695|                <div class="stat-card">
+   696|                    <div class="stat-label">💰 本周收入</div>
+   697|                    <div class="stat-value" id="weeklyRevenue">$0</div>
+   698|                    <div class="stat-change up" id="revenueChange">本周累计</div>
+   699|                </div>
+   700|                <div class="stat-card">
+   701|                    <div class="stat-label">📱 社交媒体互动</div>
+   702|                    <div class="stat-value" id="socialEngagement">-</div>
+   703|                    <div class="stat-change up" id="socialChange">本周累计</div>
+   704|                </div>
+   705|            </div>
+   706|
+   707|            <div class="social-grid">
+   708|                <div class="social-card xhs">
+   709|                    <h3>📕 小红书</h3>
+   710|                    <div class="social-stats">
+   711|                        <div class="social-stat"><div class="val" id="xhsFollowers">-</div><div class="lbl">粉丝</div></div>
+   712|                        <div class="social-stat"><div class="val" id="xhsLikes">-</div><div class="lbl">点赞</div></div>
+   713|                        <div class="social-stat"><div class="val" id="xhsCollects">-</div><div class="lbl">收藏</div></div>
+   714|                    </div>
+   715|                </div>
+   716|                <div class="social-card tiktok">
+   717|                    <h3>🎵 TikTok</h3>
+   718|                    <div class="social-stats">
+   719|                        <div class="social-stat"><div class="val" id="tiktokFollowers">-</div><div class="lbl">粉丝</div></div>
+   720|                        <div class="social-stat"><div class="val" id="tiktokLikes">-</div><div class="lbl">点赞</div></div>
+   721|                        <div class="social-stat"><div class="val" id="tiktokShares">-</div><div class="lbl">分享</div></div>
+   722|                    </div>
+   723|                </div>
+   724|                <div class="social-card facebook">
+   725|                    <h3>📘 Facebook</h3>
+   726|                    <div class="social-stats">
+   727|                        <div class="social-stat"><div class="val" id="fbFollowers">-</div><div class="lbl">粉丝</div></div>
+   728|                        <div class="social-stat"><div class="val" id="fbEngagement">-</div><div class="lbl">互动</div></div>
+   729|                        <div class="social-stat"><div class="val" id="fbMessages">-</div><div class="lbl">消息</div></div>
+   730|                    </div>
+   731|                </div>
+   732|            </div>
+   733|
+   734|            <div class="quick-actions">
+   735|                <div class="quick-action-btn" onclick="createNote()">
+   736|                    <div class="qa-icon">✍️</div>
+   737|                    <span>写笔记</span>
+   738|                </div>
+   739|                <div class="quick-action-btn" onclick="alert('上传功能开发中')">
+   740|                    <div class="qa-icon">🎥</div>
+   741|                    <span>上传</span>
+   742|                </div>
+   743|                <div class="quick-action-btn" onclick="alert('发帖功能开发中')">
+   744|                    <div class="qa-icon">📝</div>
+   745|                    <span>发帖</span>
+   746|                </div>
+   747|                <div class="quick-action-btn" onclick="showSection('reports')">
+   748|                    <div class="qa-icon">📊</div>
+   749|                    <span>分析</span>
+   750|                </div>
+   751|                <div class="quick-action-btn" onclick="alert('回复功能开发中')">
+   752|                    <div class="qa-icon">💬</div>
+   753|                    <span>回复</span>
+   754|                </div>
+   755|            </div>
+   756|        </section>
+   757|
+   758|        <!-- Appointments Section -->
+   759|        <section id="appointments" class="section" style="display:none">
+   760|            <div class="page-header">
+   761|                <div class="page-header-left">
+   762|                    <h1>📅 预约管理</h1>
+   763|                    <div class="page-subtitle">确认、改期、取消预约 · 实时同步</div>
+   764|                </div>
+   765|                <div class="page-header-right">
+   766|                    <button class="btn btn-outline" onclick="exportAppointments()">📥 导出 Excel</button>
+   767|                    <button class="btn btn-primary" onclick="openAddAptModal()">➕ 新增预约</button>
+   768|                </div>
+   769|            </div>
+   770|
+   771|            <div class="tab-bar">
+   772|                <button class="tab-btn active" onclick="filterApts('today', event)">今日</button>
+   773|                <button class="tab-btn" onclick="filterApts('tomorrow', event)">明日</button>
+   774|                <button class="tab-btn" onclick="filterApts('week', event)">本周</button>
+   775|                <button class="tab-btn" onclick="filterApts('pending', event)">待确认 <span id="pendingCount" style="color:var(--warning);font-weight:600;">0</span></button>
+   776|                <button class="tab-btn" onclick="filterApts('all', event)">全部</button>
+   777|            </div>
+   778|
+   779|            <div class="card">
+   780|                <table>
+   781|                    <thead>
+   782|                        <tr>
+   783|                            <th class="checkbox-cell"><input type="checkbox" onclick="toggleAllApts(this)"></th>
+   784|                            <th>时间</th>
+   785|                            <th>顾客</th>
+   786|                            <th>服务</th>
+   787|                            <th>美容师</th>
+   788|                            <th>来源</th>
+   789|                            <th>状态</th>
+   790|                            <th>操作</th>
+   791|                        </tr>
+   792|                    </thead>
+   793|                    <tbody id="appointmentsTable">
+   794|                        <tr><td colspan="8" style="text-align:center;color:#999;padding:40px;">加载中...</td></tr>
+   795|                    </tbody>
+   796|                </table>
+   797|            </div>
+   798|        </section>
+   799|
+   800|        <!-- Employees Section -->
+   801|        <section id="employees" class="section" style="display:none">
+   802|            <div class="page-header">
+   803|                <div class="page-header-left">
+   804|                    <h1>👩 员工管理</h1>
+   805|                    <div class="page-subtitle">员工信息、业绩追踪、排班管理</div>
+   806|                </div>
+   807|                <div class="page-header-right">
+   808|                    <button class="btn btn-primary" onclick="openAddEmpModal()">➕ 添加员工</button>
+   809|                </div>
+   810|            </div>
+   811|
+   812|            <div id="employeesGrid" class="employee-grid">
+   813|                <div style="text-align:center;color:#999;padding:40px;grid-column:1/-1;">加载中...</div>
+   814|            </div>
+   815|        </section>
+   816|
+   817|        <!-- Customers Section -->
+   818|        <section id="customers" class="section" style="display:none">
+   819|            <div class="page-header">
+   820|                <div class="page-header-left">
+   821|                    <h1>👥 客户管理</h1>
+   822|                    <div class="page-subtitle">客户信息、消费记录、偏好管理</div>
+   823|                </div>
+   824|                <div class="page-header-right">
+   825|                    <button class="btn btn-primary" onclick="window.open('clients.html', '_blank')">📋 打开客户管理</button>
+   826|                </div>
+   827|            </div>
+   828|            <div class="card" style="text-align:center;padding:60px;">
+   829|                <p style="font-size:16px;color:#666;">客户管理功能已迁移至独立页面</p>
+   830|                <button class="btn btn-primary" style="margin-top:16px;" onclick="window.open('clients.html', '_blank')">📋 打开客户管理</button>
+   831|            </div>
+   832|        </section>
+   833|
+   834|        <!-- Xiaohongshu Section -->
+   835|        <section id="xiaohongshu" class="section" style="display:none">
+   836|            <div class="page-header">
+   837|                <div class="page-header-left">
+   838|                    <h1>📕 小红书</h1>
+   839|                    <div class="page-subtitle">笔记管理 · 数据分析</div>
+   840|                </div>
+   841|                <div class="page-header-right">
+   842|                    <button class="btn btn-outline" onclick="alert('数据分析功能开发中')">📊 数据分析</button>
+   843|                    <button class="btn btn-primary" onclick="createNote()">✍️ 写笔记</button>
+   844|                </div>
+   845|            </div>
+   846|
+   847|            <div class="card">
+   848|                <div class="card-header">
+   849|                    <h3>📝 笔记模板</h3>
+   850|                </div>
+   851|                <div class="template-cards">
+   852|                    <div class="template-card" onclick="useTemplate('facial')">
+   853|                        <h4>🧖 面部护理推广</h4>
+   854|                        <p>✨ 解锁肌肤新境界！<br><br>
+   855|💆 深层清洁 + 补水保湿<br>
+   856|🌸 适合所有肤质<br>
+   857|🎉 限时特惠 $68起<br><br>
+   858|📍 I BEAUTY CENTRE<br>
+   859|📱 私信预约享折扣！</p>
+   860|                        <div class="template-actions">
+   861|                            <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();useTemplate('facial')">📋 使用</button>
+   862|                        </div>
+   863|                    </div>
+   864|                    <div class="template-card" onclick="useTemplate('massage')">
+   865|                        <h4>💆 按摩体验推广</h4>
+   866|                        <p>🌟 逃离喧嚣，遇见更好的自己<br><br>
+   867|🕯 芳香精油按摩 60min<br>
+   868|🔥 热石疗法深度放松<br>
+   869|💎 瑞典按摩舒缓压力<br><br>
+   870|🎁 新客专享 $88体验价<br>
+   871|📲 私信预约即可享受</p>
+   872|                        <div class="template-actions">
+   873|                            <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();useTemplate('massage')">📋 使用</button>
+   874|                        </div>
+   875|                    </div>
+   876|                    <div class="template-card" onclick="useTemplate('promotion')">
+   877|                        <h4>🎉 限时优惠推广</h4>
+   878|                        <p>🔥 限时特惠！错过等一年！<br><br>
+   879|🎊 买二送一：任意面部护理<br>
+   880|💫 双人同行 7折优惠<br>
+   881|🎀 闺蜜套餐仅 $128/2人<br><br>
+   882|⏰ 活动截止：本周日<br>
+   883|💬 评论区扣1获取优惠券</p>
+   884|                        <div class="template-actions">
+   885|                            <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();useTemplate('promotion')">📋 使用</button>
+   886|                        </div>
+   887|                    </div>
+   888|                </div>
+   889|            </div>
+   890|        </section>
+   891|
+   892|        <!-- TikTok Section -->
+   893|        <section id="tiktok" class="section" style="display:none">
+   894|            <div class="page-header">
+   895|                <div class="page-header-left">
+   896|                    <h1>🎵 TikTok</h1>
+   897|                    <div class="page-subtitle">短视频数据 · 热度分析</div>
+   898|                </div>
+   899|                <div class="page-header-right">
+   900|                    <button class="btn btn-primary" onclick="alert('上传视频功能开发中')">🎥 上传视频</button>
+   901|                </div>
+   902|            </div>
+   903|
+   904|            <div class="stats-grid">
+   905|                <div class="stat-card">
+   906|                    <div class="stat-label">🎬 粉丝</div>
+   907|                    <div class="stat-value" id="tiktokFollowers2">12.3K</div>
+   908|                </div>
+   909|                <div class="stat-card">
+   910|                    <div class="stat-label">▶️ 播放量</div>
+   911|                    <div class="stat-value" id="tiktokPlays">45.6K</div>
+   912|                </div>
+   913|                <div class="stat-card">
+   914|                    <div class="stat-label">📅 本周发布</div>
+   915|                    <div class="stat-value" id="tiktokWeekly">2</div>
+   916|                </div>
+   917|            </div>
+   918|
+   919|            <div class="card">
+   920|                <div class="card-header">
+   921|                    <h3>🔥 热门视频</h3>
+   922|                </div>
+   923|                <table>
+   924|                    <thead>
+   925|                        <tr>
+   926|                            <th>视频</th>
+   927|                            <th>播放</th>
+   928|                            <th>点赞</th>
+   929|                            <th>评论</th>
+   930|                            <th>分享</th>
+   931|                        </tr>
+   932|                    </thead>
+   933|                    <tbody id="tiktokVideos">
+   934|                        <tr><td colspan="5" style="text-align:center;color:#999;">暂无数据</td></tr>
+   935|                    </tbody>
+   936|                </table>
+   937|            </div>
+   938|        </section>
+   939|
+   940|        <!-- Facebook Section -->
+   941|        <section id="facebook" class="section" style="display:none">
+   942|            <div class="page-header">
+   943|                <div class="page-header-left">
+   944|                    <h1>📘 Facebook</h1>
+   945|                    <div class="page-subtitle">专页数据 · 帖文管理</div>
+   946|                </div>
+   947|                <div class="page-header-right">
+   948|                    <button class="btn btn-primary" onclick="alert('发帖功能开发中')">📝 发布帖文</button>
+   949|                </div>
+   950|            </div>
+   951|
+   952|            <div class="stats-grid">
+   953|                <div class="stat-card">
+   954|                    <div class="stat-label">👍 粉丝</div>
+   955|                    <div class="stat-value" id="fbFollowers2">8.9K</div>
+   956|                </div>
+   957|                <div class="stat-card">
+   958|                    <div class="stat-label">💬 互动</div>
+   959|                    <div class="stat-value" id="fbEngagement2">1.2K</div>
+   960|                </div>
+   961|                <div class="stat-card">
+   962|                    <div class="stat-label">✉️ 消息</div>
+   963|                    <div class="stat-value" id="fbMessages2">89</div>
+   964|                </div>
+   965|            </div>
+   966|
+   967|            <div class="card">
+   968|                <div class="card-header">
+   969|                    <h3>📅 即将发布的帖文</h3>
+   970|                </div>
+   971|                <table>
+   972|                    <thead>
+   973|                        <tr>
+   974|                            <th>时间</th>
+   975|                            <th>内容</th>
+   976|                            <th>状态</th>
+   977|                        </tr>
+   978|                    </thead>
+   979|                    <tbody id="fbPosts">
+   980|                        <tr><td colspan="3" style="text-align:center;color:#999;">暂无数据</td></tr>
+   981|                    </tbody>
+   982|                </table>
+   983|            </div>
+   984|        </section>
+   985|
+   986|        <!-- Content Calendar Section -->
+   987|        <section id="content" class="section" style="display:none">
+   988|            <div class="page-header">
+   989|                <div class="page-header-left">
+   990|                    <h1>📝 内容日历</h1>
+   991|                    <div class="page-subtitle">内容规划 · 发布排程</div>
+   992|                </div>
+   993|            </div>
+   994|
+   995|            <div class="stats-grid">
+   996|                <div class="stat-card">
+   997|                    <div class="stat-label">📅 本周发布</div>
+   998|                    <div class="stat-value" id="contentThisWeek">5</div>
+   999|                </div>
+  1000|                <div class="stat-card">
+  1001|                    <div class="stat-label">⏳ 待发布</div>
+  1002|                    <div class="stat-value" id="contentPending">3</div>
+  1003|                </div>
+  1004|                <div class="stat-card">
+  1005|                    <div class="stat-label">👁 本月曝光</div>
+  1006|                    <div class="stat-value" id="contentExposure">12.8K</div>
+  1007|                </div>
+  1008|            </div>
+  1009|
+  1010|            <div class="card">
+  1011|                <div class="card-header">
+  1012|                    <h3>📆 本周日历</h3>
+  1013|                </div>
+  1014|                <div class="content-grid" id="contentCalendar">
+  1015|                    <div class="content-day">
+  1016|                        <div class="day-label">周一</div>
+  1017|                        <div class="day-num">-</div>
+  1018|                        <span class="platform-tag platform-xhs">📕</span>
+  1019|                    </div>
+  1020|                    <div class="content-day">
+  1021|                        <div class="day-label">周二</div>
+  1022|                        <div class="day-num">-</div>
+  1023|                        <span class="platform-tag platform-tiktok">🎵</span>
+  1024|                    </div>
+  1025|                    <div class="content-day">
+  1026|                        <div class="day-label">周三</div>
+  1027|                        <div class="day-num">-</div>
+  1028|                    </div>
+  1029|                    <div class="content-day">
+  1030|                        <div class="day-label">周四</div>
+  1031|                        <div class="day-num">-</div>
+  1032|                        <span class="platform-tag platform-xhs">📕</span>
+  1033|                    </div>
+  1034|                    <div class="content-day">
+  1035|                        <div class="day-label">周五</div>
+  1036|                        <div class="day-num">-</div>
+  1037|                        <span class="platform-tag platform-facebook">📘</span>
+  1038|                    </div>
+  1039|                    <div class="content-day">
+  1040|                        <div class="day-label">周六</div>
+  1041|                        <div class="day-num">-</div>
+  1042|                    </div>
+  1043|                    <div class="content-day">
+  1044|                        <div class="day-label">周日</div>
+  1045|                        <div class="day-num">-</div>
+  1046|                    </div>
+  1047|                </div>
+  1048|            </div>
+  1049|        </section>
+  1050|
+  1051|        <!-- Reports Section -->
+  1052|        <section id="reports" class="section" style="display:none">
+  1053|            <div class="page-header">
+  1054|                <div class="page-header-left">
+  1055|                    <h1>📈 数据报表</h1>
+  1056|                    <div class="page-subtitle">业绩分析 · 趋势追踪</div>
+  1057|                </div>
+  1058|                <div class="page-header-right">
+  1059|                    <button class="btn btn-outline" onclick="generateReport()">📄 生成报告</button>
+  1060|                </div>
+  1061|            </div>
+  1062|
+  1063|            <div class="stats-grid">
+  1064|                <div class="stat-card">
+  1065|                    <div class="stat-label">💰 本周总收入</div>
+  1066|                    <div class="stat-value" id="reportWeeklyRevenue">$0</div>
+  1067|                </div>
+  1068|                <div class="stat-card">
+  1069|                    <div class="stat-label">✅ 预约完成率</div>
+  1070|                    <div class="stat-value" id="reportCompletionRate">0%</div>
+  1071|                </div>
+  1072|                <div class="stat-card">
+  1073|                    <div class="stat-label">👤 客单价均值</div>
+  1074|                    <div class="stat-value" id="reportAvgOrder">$0</div>
+  1075|                </div>
+  1076|                <div class="stat-card">
+  1077|                    <div class="stat-label">🆕 新客户数</div>
+  1078|                    <div class="stat-value" id="reportNewClients">0</div>
+  1079|                </div>
+  1080|            </div>
+  1081|
+  1082|            <div class="card">
+  1083|                <div class="card-header">
+  1084|                    <h3>📊 本周趋势</h3>
+  1085|                </div>
+  1086|                <div class="chart-bar" id="weeklyTrend">
+  1087|                    <div class="chart-bar-item"><div class="bar" style="height:60%;background:var(--primary);"></div><div class="bar-label">周一</div></div>
+  1088|                    <div class="chart-bar-item"><div class="bar" style="height:40%;background:var(--primary);"></div><div class="bar-label">周二</div></div>
+  1089|                    <div class="chart-bar-item"><div class="bar" style="height:80%;background:var(--primary);"></div><div class="bar-label">周三</div></div>
+  1090|                    <div class="chart-bar-item"><div class="bar" style="height:55%;background:var(--primary);"></div><div class="bar-label">周四</div></div>
+  1091|                    <div class="chart-bar-item"><div class="bar" style="height:70%;background:var(--primary);"></div><div class="bar-label">周五</div></div>
+  1092|                    <div class="chart-bar-item"><div class="bar" style="height:45%;background:var(--primary);"></div><div class="bar-label">周六</div></div>
+  1093|                    <div class="chart-bar-item"><div class="bar" style="height:30%;background:var(--primary);"></div><div class="bar-label">周日</div></div>
+  1094|                </div>
+  1095|            </div>
+  1096|        </section>
+  1097|
+  1098|        <!-- Settings Section -->
+  1099|        <section id="settings" class="section" style="display:none">
+  1100|            <div class="page-header">
+  1101|                <div class="page-header-left">
+  1102|                    <h1>⚙️ 设置</h1>
+  1103|                    <div class="page-subtitle">门店信息 · 通知配置</div>
+  1104|                </div>
+  1105|                <div class="page-header-right">
+  1106|                    <button class="btn btn-primary" onclick="alert('设置已保存')">💾 保存设置</button>
+  1107|                </div>
+  1108|            </div>
+  1109|
+  1110|            <div class="card">
+  1111|                <div class="card-header"><h3>🏪 基本信息</h3></div>
+  1112|                <div class="form-group">
+  1113|                    <label>门店名称</label>
+  1114|                    <input type="text" id="shopName" value="I BEAUTY CENTRE">
+  1115|                </div>
+  1116|                <div class="form-group">
+  1117|                    <label>营业时间</label>
+  1118|                    <input type="text" id="shopHours" value="10:00 - 22:00">
+  1119|                </div>
+  1120|                <div class="form-group">
+  1121|                    <label>WhatsApp号码</label>
+  1122|                    <input type="text" id="whatsappNumber" value="65+65 867156861705">
+  1123|                </div>
+  1124|                <div class="form-group">
+  1125|                    <label>老板通知号码</label>
+  1126|                    <input type="text" id="bossNumber" value="65+65 867156861705">
+  1127|                </div>
+  1128|            </div>
+  1129|
+  1130|            <div class="card">
+  1131|                <div class="card-header"><h3>🔔 通知设置</h3></div>
+  1132|                <div style="display:flex;flex-direction:column;gap:16px;">
+  1133|                    <div style="display:flex;align-items:center;justify-content:space-between;">
+  1134|                        <span style="font-size:14px;">新预约通知</span>
+  1135|                        <label class="toggle-switch">
+  1136|                            <input type="checkbox" checked><span class="toggle-slider"></span>
+  1137|                        </label>
+  1138|                    </div>
+  1139|                    <div style="display:flex;align-items:center;justify-content:space-between;">
+  1140|                        <span style="font-size:14px;">取消预约通知</span>
+  1141|                        <label class="toggle-switch">
+  1142|                            <input type="checkbox" checked><span class="toggle-slider"></span>
+  1143|                        </label>
+  1144|                    </div>
+  1145|                    <div style="display:flex;align-items:center;justify-content:space-between;">
+  1146|                        <span style="font-size:14px;">每日报告推送</span>
+  1147|                        <label class="toggle-switch">
+  1148|                            <input type="checkbox"><span class="toggle-slider"></span>
+  1149|                        </label>
+  1150|                    </div>
+  1151|                    <div style="display:flex;align-items:center;justify-content:space-between;">
+  1152|                        <span style="font-size:14px;">社交媒体提醒</span>
+  1153|                        <label class="toggle-switch">
+  1154|                            <input type="checkbox" checked><span class="toggle-slider"></span>
+  1155|                        </label>
+  1156|                    </div>
+  1157|                </div>
+  1158|            </div>
+  1159|        </section>
+  1160|    </main>
+  1161|
+  1162|    <!-- Employee Modal -->
+  1163|    <div class="modal-overlay" id="employeeModal">
+  1164|        <div class="modal">
+  1165|            <h2 id="employeeModalTitle">添加员工</h2>
+  1166|            <form id="employeeForm" onsubmit="return false;">
+  1167|                <div class="form-group">
+  1168|                    <label>姓名</label>
+  1169|                    <input type="text" id="empName" placeholder="输入员工姓名" required>
+  1170|                </div>
+  1171|                <div class="form-group">
+  1172|                    <label>职位</label>
+  1173|                    <input type="text" id="empRole" placeholder="如：高级美容师" required>
+  1174|                </div>
+  1175|                <div class="form-group">
+  1176|                    <label>专长</label>
+  1177|                    <input type="text" id="empSpecialty" placeholder="如：面部护理、按摩">
+  1178|                </div>
+  1179|                <div class="form-group">
+  1180|                    <label>电话</label>
+  1181|                    <input type="text" id="empPhone" placeholder="手机号码">
+  1182|                </div>
+  1183|                <div class="form-group">
+  1184|                    <label>邮箱</label>
+  1185|                    <input type="email" id="empEmail" placeholder="电子邮箱">
+  1186|                </div>
+  1187|                <div class="form-group">
+  1188|                    <label>颜色标识</label>
+  1189|                    <div class="color-options" id="colorOptions">
+  1190|                        <div class="color-option selected" style="background:#c41e3a;" data-color="#c41e3a" onclick="selectColor(this)"></div>
+  1191|                        <div class="color-option" style="background:#25d366;" data-color="#25d366" onclick="selectColor(this)"></div>
+  1192|                        <div class="color-option" style="background:#0088cc;" data-color="#0088cc" onclick="selectColor(this)"></div>
+  1193|                        <div class="color-option" style="background:#f59e0b;" data-color="#f59e0b" onclick="selectColor(this)"></div>
+  1194|                        <div class="color-option" style="background:#8b5cf6;" data-color="#8b5cf6" onclick="selectColor(this)"></div>
+  1195|                        <div class="color-option" style="background:#ec4899;" data-color="#ec4899" onclick="selectColor(this)"></div>
+  1196|                    </div>
+  1197|                </div>
+  1198|                <input type="hidden" id="empColor" value="#c41e3a">
+  1199|                <input type="hidden" id="empId" value="">
+  1200|                <div class="modal-actions">
+  1201|                    <button type="button" class="btn btn-outline" onclick="closeEmpModal()">取消</button>
+  1202|                    <button type="button" class="btn btn-primary" onclick="saveEmployee()">保存</button>
+  1203|                </div>
+  1204|            </form>
+  1205|        </div>
+  1206|    </div>
+  1207|
+  1208|    <!-- Toast -->
+  1209|    <div class="toast" id="toast"></div>
+  1210|
+  1211|    <script>
+  1212|        var API_BASE = 'http://45.76.153.191:8082/api';
+  1213|        var allAppointments = [];
+  1214|        var allEmployees = [];
+  1215|        var currentFilter = 'today';
+  1216|        var fallbackToDemo = false;
+  1217|
+  1218|        function showSection(sectionId) {
+  1219|            document.querySelectorAll('.section').forEach(function(s) { s.style.display = 'none'; });
+  1220|            document.getElementById(sectionId).style.display = 'block';
+  1221|
+  1222|            document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  1223|            // Find the nav-item that matches this section
+  1224|            document.querySelectorAll('.nav-item').forEach(function(n) {
+  1225|                var onclick = n.getAttribute('onclick') || '';
+  1226|                if (onclick.indexOf(sectionId) > -1) {
+  1227|                    n.classList.add('active');
+  1228|                }
+  1229|            });
+  1230|        }
+  1231|
+  1232|        function showToast(message, type) {
+  1233|            var toast = document.getElementById('toast');
+  1234|            toast.textContent = message;
+  1235|            toast.className = 'toast toast-' + (type || 'info');
+  1236|            toast.classList.add('show');
+  1237|            setTimeout(function() {
+  1238|                toast.classList.remove('show');
+  1239|            }, 3000);
+  1240|        }
+  1241|
+  1242|        function formatTime(time) {
+  1243|            if (!time) return '';
+  1244|            var parts = time.split(':');
+  1245|            var h = parseInt(parts[0]);
+  1246|            var m = parts[1];
+  1247|            var ampm = h >= 12 ? 'PM' : 'AM';
+  1248|            if (h > 12) h = h - 12;
+  1249|            if (h === 0) h = 12;
+  1250|            return h + ':' + m + ' ' + ampm;
+  1251|        }
+  1252|
+  1253|        function loadAllData() {
+  1254|            document.getElementById('lastUpdate').textContent = new Date().toLocaleString('zh-CN');
+  1255|            loadStats();
+  1256|            loadAppointments();
+  1257|            loadEmployees();
+  1258|        }
+  1259|
+  1260|        function loadStats() {
+  1261|            fetch(API_BASE + '/stats')
+  1262|                .then(function(r) { return r.json(); })
+  1263|                .then(function(data) {
+  1264|                    document.getElementById('todayApts').textContent = data.today_count || data.today_apts || '-';
+  1265|                    document.getElementById('pendingApts').textContent = data.pending_count || data.pending_apts || '-';
+  1266|                    document.getElementById('weeklyRevenue').textContent = '$' + (data.weekly_revenue || data.revenue || 0);
+  1267|                    document.getElementById('socialEngagement').textContent = data.social_engagement || data.social_total || '-';
+  1268|                    
+  1269|                    if (data.xhs_followers) document.getElementById('xhsFollowers').textContent = data.xhs_followers;
+  1270|                    if (data.xhs_likes) document.getElementById('xhsLikes').textContent = data.xhs_likes;
+  1271|                    if (data.xhs_collects) document.getElementById('xhsCollects').textContent = data.xhs_collects;
+  1272|                    if (data.tiktok_followers) document.getElementById('tiktokFollowers').textContent = data.tiktok_followers;
+  1273|                    if (data.tiktok_likes) document.getElementById('tiktokLikes').textContent = data.tiktok_likes;
+  1274|                    if (data.tiktok_shares) document.getElementById('tiktokShares').textContent = data.tiktok_shares;
+  1275|                    if (data.fb_followers) document.getElementById('fbFollowers').textContent = data.fb_followers;
+  1276|                    if (data.fb_engagement) document.getElementById('fbEngagement').textContent = data.fb_engagement;
+  1277|                    if (data.fb_messages) document.getElementById('fbMessages').textContent = data.fb_messages;
+  1278|
+  1279|                    if (data.pending_count) document.getElementById('pendingBadge').textContent = data.pending_count;
+  1280|                    if (data.xhs_pending) document.getElementById('xhsBadge').textContent = data.xhs_pending;
+  1281|                })
+  1282|                .catch(function(err) {
+  1283|                    console.error('Stats error:', err);
+  1284|                });
+  1285|        }
+  1286|
+  1287|        function loadAppointments() {
+  1288|            fetch(API_BASE + '/appointments')
+  1289|                .then(function(r) { return r.json(); })
+  1290|                .then(function(data) {
+  1291|                    allAppointments = data.appointments || data || [];
+  1292|                    if (currentFilter === 'today') {
+  1293|                        filterApts('today', false);
+  1294|                    } else {
+  1295|                        filterApts(currentFilter, false);
+  1296|                    }
+  1297|                    var pendingCount = allAppointments.filter(function(a) { return a.status === 'pending'; }).length;
+  1298|                    document.getElementById('pendingCount').textContent = pendingCount;
+  1299|                    document.getElementById('pendingBadge').textContent = pendingCount;
+  1300|                })
+  1301|                .catch(function(err) {
+  1302|                    console.error('Appointments error:', err);
+  1303|                    if (!fallbackToDemo) {
+  1304|                        fallbackToDemo = true;
+  1305|                        allAppointments = [
+  1306|                            { id: 1, date: '2026-05-08', time: '10:00', client_name: 'Lisa Wang', service_name: '面部护理', employee_name: 'Annie', status: 'confirmed', source: 'whatsapp' },
+  1307|                            { id: 2, date: '2026-05-08', time: '11:30', client_name: 'May Chen', service_name: '热石按摩', employee_name: 'Mei', status: 'pending', source: 'xiaohongshu' },
+  1308|                            { id: 3, date: '2026-05-08', time: '14:00', client_name: 'Jenny Lim', service_name: '深层清洁', employee_name: 'Lin', status: 'confirmed', source: 'tiktok' },
+  1309|                            { id: 4, date: '2026-05-08', time: '15:30', client_name: 'Sarah Tan', service_name: '芳香精油按摩', employee_name: 'Annie', status: 'cancelled', source: 'website' },
+  1310|                            { id: 5, date: '2026-05-09', time: '09:00', client_name: 'Amy Ng', service_name: '瑞典按摩', employee_name: 'Mei', status: 'pending', source: 'chat' }
+  1311|                        ];
+  1312|                        filterApts('today', false);
+  1313|                    }
+  1314|                });
+  1315|        }
+  1316|
+  1317|        var sourceIcons = {
+  1318|            'xiaohongshu': '<span class="source-icon source-xiaohongshu" title="小红书">📕</span>',
+  1319|            'tiktok': '<span class="source-icon source-tiktok" title="TikTok">🎵</span>',
+  1320|            'whatsapp': '<span class="source-icon source-whatsapp" title="WhatsApp">💬</span>',
+  1321|            'chat': '<span class="source-icon source-chat" title="在线咨询">💭</span>',
+  1322|            'website': '<span class="source-icon source-website" title="网站">🌐</span>'
+  1323|        };
+  1324|
+  1325|        var statusLabels = {
+  1326|            'confirmed': '已确认',
+  1327|            'pending': '待确认',
+  1328|            'cancelled': '已取消',
+  1329|            'rescheduled': '已改期'
+  1330|        };
+  1331|
+  1332|        function renderAppointments(apts) {
+  1333|            var tbody = document.getElementById('appointmentsTable');
+  1334|            if (!apts || apts.length === 0) {
+  1335|                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:40px;">暂无预约</td></tr>';
+  1336|                return;
+  1337|            }
+  1338|            tbody.innerHTML = apts.map(function(a) {
+  1339|                var srcIcon = sourceIcons[a.source] || sourceIcons[a.source?.toLowerCase()] || '<span class="source-icon" title="其他">📋</span>';
+  1340|                var statusClass = 'status-' + (a.status || 'pending');
+  1341|                var statusText = statusLabels[a.status] || a.status;
+  1342|                var timeFormatted = formatTime(a.time);
+  1343|                return '<tr>' +
+  1344|                    '<td class="checkbox-cell"><input type="checkbox" class="apt-checkbox" value="' + a.id + '"></td>' +
+  1345|                    '<td>' + (a.date ? a.date.substring(5) + ' ' : '') + timeFormatted + '</td>' +
+  1346|                    '<td><strong>' + (a.client_name || '未填写') + '</strong></td>' +
+  1347|                    '<td>' + (a.service_name || '未选择') + '</td>' +
+  1348|                    '<td>' + (a.employee_name || '未指定') + '</td>' +
+  1349|                    '<td>' + srcIcon + '</td>' +
+  1350|                    '<td><span class="status-badge ' + statusClass + '">' + statusText + '</span></td>' +
+  1351|                    '<td>' +
+  1352|                        '<button class="btn btn-xs btn-success" onclick="confirmApt(' + a.id + ')" title="确认">✅</button> ' +
+  1353|                        '<button class="btn btn-xs btn-outline" onclick="rescheduleApt(' + a.id + ')" title="改期">📅</button> ' +
+  1354|                        '<button class="btn btn-xs btn-danger" onclick="deleteApt(' + a.id + ')" title="取消">❌</button> ' +
+  1355|                        '<button class="btn btn-xs btn-outline" onclick="viewApt(' + a.id + ')" title="详情">👁️</button>' +
+  1356|                    '</td>' +
+  1357|                '</tr>';
+  1358|            }).join('');
+  1359|        }
+  1360|
+  1361|        function filterApts(filter, fromEvent) {
+  1362|            currentFilter = filter;
+  1363|            var now = new Date();
+  1364|            var today = now.toISOString().split('T')[0];
+  1365|            var tomorrow = new Date(now);
+  1366|            tomorrow.setDate(tomorrow.getDate() + 1);
+  1367|            var tomorrowStr = tomorrow.toISOString().split('T')[0];
+  1368|
+  1369|            var filtered = [];
+  1370|            if (filter === 'today') {
+  1371|                filtered = allAppointments.filter(function(a) { return a.date === today; });
+  1372|            } else if (filter === 'tomorrow') {
+  1373|                filtered = allAppointments.filter(function(a) { return a.date === tomorrowStr; });
+  1374|            } else if (filter === 'week') {
+  1375|                var weekEnd = new Date(now);
+  1376|                weekEnd.setDate(weekEnd.getDate() + 7);
+  1377|                var weekEndStr = weekEnd.toISOString().split('T')[0];
+  1378|                filtered = allAppointments.filter(function(a) { return a.date >= today && a.date <= weekEndStr; });
+  1379|            } else if (filter === 'pending') {
+  1380|                filtered = allAppointments.filter(function(a) { return a.status === 'pending'; });
+  1381|            } else {
+  1382|                filtered = allAppointments;
+  1383|            }
+  1384|
+  1385|            renderAppointments(filtered);
+  1386|
+  1387|            if (fromEvent !== false) {
+  1388|                document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  1389|                if (fromEvent && fromEvent.currentTarget) {
+  1390|                    fromEvent.currentTarget.classList.add('active');
+  1391|                } else {
+  1392|                    document.querySelectorAll('.tab-btn').forEach(function(b) {
+  1393|                        if (b.textContent.trim().indexOf('今日') > -1 || b.textContent.trim().indexOf('Today') > -1) {
+  1394|                            b.classList.add('active');
+  1395|                        }
+  1396|                    });
+  1397|                }
+  1398|            }
+  1399|        }
+  1400|
+  1401|        function confirmApt(id) {
+  1402|            fetch(API_BASE + '/appointments/' + id, {
+  1403|                method: 'PATCH',
+  1404|                headers: { 'Content-Type': 'application/json' },
+  1405|                body: JSON.stringify({ status: 'confirmed' })
+  1406|            })
+  1407|            .then(function(r) { return r.json(); })
+  1408|            .then(function(data) {
+  1409|                showToast('✅ 预约已确认', 'success');
+  1410|                loadAppointments();
+  1411|                loadStats();
+  1412|            })
+  1413|            .catch(function(err) {
+  1414|                showToast('✅ 预约已确认（本地）', 'success');
+  1415|                var apt = allAppointments.find(function(a) { return a.id === id; });
+  1416|                if (apt) apt.status = 'confirmed';
+  1417|                renderAppointments(allAppointments);
+  1418|            });
+  1419|        }
+  1420|
+  1421|        function viewApt(id) {
+  1422|            var apt = allAppointments.find(function(a) { return a.id === id; });
+  1423|            if (apt) {
+  1424|                alert('📋 预约详情\n\n顾客：' + (apt.client_name || '未填写') + '\n服务：' + (apt.service_name || '未选择') + '\n美容师：' + (apt.employee_name || '未指定') + '\n时间：' + (apt.date || '') + ' ' + (apt.time || '') + '\n状态：' + (statusLabels[apt.status] || apt.status) + '\n来源：' + (apt.source || '其他'));
+  1425|            }
+  1426|        }
+  1427|
+  1428|        function rescheduleApt(id) {
+  1429|            var apt = allAppointments.find(function(a) { return a.id === id; });
+  1430|            if (apt) {
+  1431|                var newDate = prompt('请输入新的日期 (YYYY-MM-DD):', apt.date || '');
+  1432|                if (newDate) {
+  1433|                    var newTime = prompt('请输入新的时间 (HH:MM):', apt.time || '');
+  1434|                    if (newTime) {
+  1435|                        fetch(API_BASE + '/appointments/' + id, {
+  1436|                            method: 'PATCH',
+  1437|                            headers: { 'Content-Type': 'application/json' },
+  1438|                            body: JSON.stringify({ status: 'rescheduled', date: newDate, time: newTime })
+  1439|                        })
+  1440|                        .then(function(r) { return r.json(); })
+  1441|                        .then(function(data) {
+  1442|                            showToast('📅 预约已改期', 'info');
+  1443|                            loadAppointments();
+  1444|                        })
+  1445|                        .catch(function(err) {
+  1446|                            showToast('📅 预约已改期（本地）', 'info');
+  1447|                            apt.date = newDate;
+  1448|                            apt.time = newTime;
+  1449|                            apt.status = 'rescheduled';
+  1450|                            renderAppointments(allAppointments);
+  1451|                        });
+  1452|                    }
+  1453|                }
+  1454|            }
+  1455|        }
+  1456|
+  1457|        function deleteApt(id) {
+  1458|            if (!confirm('确定要取消此预约吗？')) return;
+  1459|            fetch(API_BASE + '/appointments/' + id, {
+  1460|                method: 'PATCH',
+  1461|                headers: { 'Content-Type': 'application/json' },
+  1462|                body: JSON.stringify({ status: 'cancelled' })
+  1463|            })
+  1464|            .then(function(r) { return r.json(); })
+  1465|            .then(function(data) {
+  1466|                showToast('❌ 预约已取消', 'error');
+  1467|                loadAppointments();
+  1468|                loadStats();
+  1469|            })
+  1470|            .catch(function(err) {
+  1471|                showToast('❌ 预约已取消（本地）', 'error');
+  1472|                var apt = allAppointments.find(function(a) { return a.id === id; });
+  1473|                if (apt) apt.status = 'cancelled';
+  1474|                renderAppointments(allAppointments);
+  1475|            });
+  1476|        }
+  1477|
+  1478|        function toggleAllApts(checkbox) {
+  1479|            document.querySelectorAll('.apt-checkbox').forEach(function(cb) {
+  1480|                cb.checked = checkbox.checked;
+  1481|            });
+  1482|        }
+  1483|
+  1484|        function loadEmployees() {
+  1485|            fetch(API_BASE + '/employees/all')
+  1486|                .then(function(r) { return r.json(); })
+  1487|                .then(function(data) {
+  1488|                    allEmployees = data.employees || data || [];
+  1489|                    renderEmployees(allEmployees);
+  1490|                })
+  1491|                .catch(function(err) {
+  1492|                    console.error('Employees error:', err);
+  1493|                    allEmployees = [
+  1494|                        { id: 1, name: 'Annie', role: '高级美容师', specialty: '面部护理、微针', avatar: null, today_apts: 5, weekly_revenue: 2800, rating: 4.9, active: true },
+  1495|                        { id: 2, name: 'Mei', role: '按摩专家', specialty: '热石按摩、精油SPA', avatar: null, today_apts: 6, weekly_revenue: 3200, rating: 4.8, active: true },
+  1496|                        { id: 3, name: 'Lin', role: '美容师', specialty: '深层清洁、焕肤', avatar: null, today_apts: 4, weekly_revenue: 2100, rating: 4.7, active: true }
+  1497|                    ];
+  1498|                    renderEmployees(allEmployees);
+  1499|                });
+  1500|        }
+  1501|
+  1502|        function renderEmployees(employees) {
+  1503|            var container = document.getElementById('employeesGrid');
+  1504|            if (!employees || employees.length === 0) {
+  1505|                container.innerHTML = '<div style="text-align:center;color:#999;padding:40px;grid-column:1/-1;">暂无员工数据</div>';
+  1506|                return;
+  1507|            }
+  1508|            container.innerHTML = employees.map(function(e) {
+  1509|                var initial = (e.name || '?')[0];
+  1510|                var color = e.color || '#c41e3a';
+  1511|                var activeText = e.active !== false ? '在职' : '已离职';
+  1512|                var actionBtn = e.active !== false ?
+  1513|                    '<button class="btn btn-sm btn-danger" onclick="markDeparture(' + e.id + ')">🚫 离职</button>' :
+  1514|                    '<button class="btn btn-sm btn-success" onclick="rehireEmployee(' + e.id + ')">🔄 复职</button>';
+  1515|                return '<div class="employee-card">' +
+  1516|                    '<div class="employee-card-top">' +
+  1517|                        '<div class="employee-avatar" style="background:' + color + ';">' + initial + '</div>' +
+  1518|                        '<div class="employee-info">' +
+  1519|                            '<div class="employee-name">' + (e.name || '未知') + ' <span style="font-size:12px;color:#999;font-weight:400;">' + activeText + '</span></div>' +
+  1520|                            '<div class="employee-role">' + (e.role || '美容师') + '</div>' +
+  1521|                            '<div class="employee-specialty">🏅 ' + (e.specialty || '通用') + '</div>' +
+  1522|                        '</div>' +
+  1523|                    '</div>' +
+  1524|                    '<div class="employee-stats">' +
+  1525|                        '<div class="emp-stat"><div class="emp-stat-val">' + (e.today_apts || 0) + '</div><div class="emp-stat-lbl">今日预约</div></div>' +
+  1526|                        '<div class="emp-stat"><div class="emp-stat-val">$' + (e.weekly_revenue || 0) + '</div><div class="emp-stat-lbl">本周业绩</div></div>' +
+  1527|                        '<div class="emp-stat"><div class="emp-stat-val">' + (e.rating || '-') + '</div><div class="emp-stat-lbl">评分</div></div>' +
+  1528|                    '</div>' +
+  1529|                    '<div class="employee-actions">' +
+  1530|                        '<button class="btn btn-sm btn-outline" onclick="viewEmpStats(' + e.id + ')">📊 业绩</button>' +
+  1531|                        '<button class="btn btn-sm btn-outline" onclick="viewEmpSchedule(' + e.id + ')">📅 排班</button>' +
+  1532|                        '<button class="btn btn-sm btn-outline" onclick="editEmployee(' + e.id + ')">✏️ 编辑</button>' +
+  1533|                        actionBtn +
+  1534|                    '</div>' +
+  1535|                '</div>';
+  1536|            }).join('');
+  1537|        }
+  1538|
+  1539|        function markDeparture(empId) {
+  1540|            if (!confirm('确定将此员工标记为离职？')) return;
+  1541|            fetch(API_BASE + '/employees/' + empId, {
+  1542|                method: 'PATCH',
+  1543|                headers: { 'Content-Type': 'application/json' },
+  1544|                body: JSON.stringify({ active: false })
+  1545|            })
+  1546|            .then(function(r) { return r.json(); })
+  1547|            .then(function(data) {
+  1548|                showToast('🚫 员工已标记为离职', 'warning');
+  1549|                loadEmployees();
+  1550|            })
+  1551|            .catch(function(err) {
+  1552|                showToast('🚫 已本地标记离职', 'warning');
+  1553|                var emp = allEmployees.find(function(e) { return e.id === empId; });
+  1554|                if (emp) emp.active = false;
+  1555|                renderEmployees(allEmployees);
+  1556|            });
+  1557|        }
+  1558|
+  1559|        function rehireEmployee(empId) {
+  1560|            if (!confirm('确定要复职此员工？')) return;
+  1561|            fetch(API_BASE + '/employees/' + empId, {
+  1562|                method: 'PATCH',
+  1563|                headers: { 'Content-Type': 'application/json' },
+  1564|                body: JSON.stringify({ active: true })
+  1565|            })
+  1566|            .then(function(r) { return r.json(); })
+  1567|            .then(function(data) {
+  1568|                showToast('🔄 员工已复职', 'success');
+  1569|                loadEmployees();
+  1570|            })
+  1571|            .catch(function(err) {
+  1572|                showToast('🔄 已本地复职', 'success');
+  1573|                var emp = allEmployees.find(function(e) { return e.id === empId; });
+  1574|                if (emp) emp.active = true;
+  1575|                renderEmployees(allEmployees);
+  1576|            });
+  1577|        }
+  1578|
+  1579|        function exportAppointments() {
+  1580|            var csv = '\uFEFF预约ID,日期,时间,顾客,服务,美容师,来源,状态\n';
+  1581|            allAppointments.forEach(function(a) {
+  1582|                csv += (a.id || '') + ',' + (a.date || '') + ',' + (a.time || '') + ',' + (a.client_name || '') + ',' + (a.service_name || '') + ',' + (a.employee_name || '') + ',' + (a.source || '') + ',' + (a.status || '') + '\n';
+  1583|            });
+  1584|            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  1585|            var link = document.createElement('a');
+  1586|            link.href = URL.createObjectURL(blob);
+  1587|            link.download = '预约数据_' + new Date().toISOString().split('T')[0] + '.csv';
+  1588|            link.click();
+  1589|            showToast('📥 导出成功', 'success');
+  1590|        }
+  1591|
+  1592|        function openAddAptModal() {
+  1593|            var name = prompt('顾客姓名：');
+  1594|            if (!name) return;
+  1595|            var service = prompt('服务项目：', '面部护理');
+  1596|            if (!service) return;
+  1597|            var date = prompt('日期 (YYYY-MM-DD)：', new Date().toISOString().split('T')[0]);
+  1598|            if (!date) return;
+  1599|            var time = prompt('时间 (HH:MM)：', '10:00');
+  1600|            if (!time) return;
+  1601|            var employeeName = prompt('美容师：', 'Annie');
+  1602|            if (!employeeName) return;
+  1603|
+  1604|            fetch(API_BASE + '/appointments', {
+  1605|                method: 'POST',
+  1606|                headers: { 'Content-Type': 'application/json' },
+  1607|                body: JSON.stringify({
+  1608|                    client_name: name,
+  1609|                    service_name: service,
+  1610|                    date: date,
+  1611|                    time: time,
+  1612|                    employee_name: employeeName,
+  1613|                    status: 'pending',
+  1614|                    source: 'manual'
+  1615|                })
+  1616|            })
+  1617|            .then(function(r) { return r.json(); })
+  1618|            .then(function(data) {
+  1619|                showToast('✅ 预约已添加', 'success');
+  1620|                loadAppointments();
+  1621|                loadStats();
+  1622|            })
+  1623|            .catch(function(err) {
+  1624|                showToast('✅ 预约已添加（本地）', 'success');
+  1625|                allAppointments.push({
+  1626|                    id: Date.now(),
+  1627|                    client_name: name,
+  1628|                    service_name: service,
+  1629|                    date: date,
+  1630|                    time: time,
+  1631|                    employee_name: employeeName,
+  1632|                    status: 'pending',
+  1633|                    source: 'manual'
+  1634|                });
+  1635|                filterApts(currentFilter, false);
+  1636|            });
+  1637|        }
+  1638|
+  1639|        // Employee CRUD
+  1640|        function openAddEmpModal() {
+  1641|            document.getElementById('employeeModalTitle').textContent = '添加员工';
+  1642|            document.getElementById('empId').value = '';
+  1643|            document.getElementById('empName').value = '';
+  1644|            document.getElementById('empRole').value = '';
+  1645|            document.getElementById('empSpecialty').value = '';
+  1646|            document.getElementById('empPhone').value = '';
+  1647|            document.getElementById('empEmail').value = '';
+  1648|            document.getElementById('empColor').value = '#c41e3a';
+  1649|            document.querySelectorAll('.color-option').forEach(function(c) { c.classList.remove('selected'); });
+  1650|            document.querySelector('.color-option').classList.add('selected');
+  1651|            document.getElementById('employeeModal').classList.add('active');
+  1652|        }
+  1653|
+  1654|        function closeEmpModal() {
+  1655|            document.getElementById('employeeModal').classList.remove('active');
+  1656|        }
+  1657|
+  1658|        function editEmployee(empId) {
+  1659|            var emp = allEmployees.find(function(e) { return e.id === empId; });
+  1660|            if (!emp) return;
+  1661|            document.getElementById('employeeModalTitle').textContent = '编辑员工';
+  1662|            document.getElementById('empId').value = emp.id;
+  1663|            document.getElementById('empName').value = emp.name || '';
+  1664|            document.getElementById('empRole').value = emp.role || '';
+  1665|            document.getElementById('empSpecialty').value = emp.specialty || '';
+  1666|            document.getElementById('empPhone').value = emp.phone || '';
+  1667|            document.getElementById('empEmail').value = emp.email || '';
+  1668|            document.getElementById('empColor').value = emp.color || '#c41e3a';
+  1669|            document.querySelectorAll('.color-option').forEach(function(c) {
+  1670|                c.classList.toggle('selected', c.getAttribute('data-color') === (emp.color || '#c41e3a'));
+  1671|            });
+  1672|            document.getElementById('employeeModal').classList.add('active');
+  1673|        }
+  1674|
+  1675|        function saveEmployee() {
+  1676|            var data = {
+  1677|                name: document.getElementById('empName').value,
+  1678|                role: document.getElementById('empRole').value,
+  1679|                specialty: document.getElementById('empSpecialty').value,
+  1680|                phone: document.getElementById('empPhone').value,
+  1681|                email: document.getElementById('empEmail').value,
+  1682|                color: document.getElementById('empColor').value
+  1683|            };
+  1684|            var empId = document.getElementById('empId').value;
+  1685|
+  1686|            if (!data.name) {
+  1687|                showToast('请输入员工姓名', 'error');
+  1688|                return;
+  1689|            }
+  1690|
+  1691|            var url = empId ? API_BASE + '/employees/' + empId : API_BASE + '/employees';
+  1692|            var method = empId ? 'PATCH' : 'POST';
+  1693|
+  1694|            fetch(url, {
+  1695|                method: method,
+  1696|                headers: { 'Content-Type': 'application/json' },
+  1697|                body: JSON.stringify(data)
+  1698|            })
+  1699|            .then(function(r) { return r.json(); })
+  1700|            .then(function(result) {
+  1701|                closeEmpModal();
+  1702|                showToast(empId ? '✅ 员工信息已更新' : '✅ 员工已添加', 'success');
+  1703|                loadEmployees();
+  1704|            })
+  1705|            .catch(function(err) {
+  1706|                closeEmpModal();
+  1707|                showToast(empId ? '✅ 员工信息已更新（本地）' : '✅ 员工已添加（本地）', 'success');
+  1708|                if (empId) {
+  1709|                    var emp = allEmployees.find(function(e) { return e.id === parseInt(empId); });
+  1710|                    if (emp) {
+  1711|                        emp.name = data.name;
+  1712|                        emp.role = data.role;
+  1713|                        emp.specialty = data.specialty;
+  1714|                        emp.phone = data.phone;
+  1715|                        emp.email = data.email;
+  1716|                        emp.color = data.color;
+  1717|                    }
+  1718|                } else {
+  1719|                    data.id = Date.now();
+  1720|                    data.today_apts = 0;
+  1721|                    data.weekly_revenue = 0;
+  1722|                    data.rating = '-';
+  1723|                    data.active = true;
+  1724|                    allEmployees.push(data);
+  1725|                }
+  1726|                renderEmployees(allEmployees);
+  1727|            });
+  1728|        }
+  1729|
+  1730|        function selectColor(el) {
+  1731|            document.querySelectorAll('.color-option').forEach(function(c) { c.classList.remove('selected'); });
+  1732|            el.classList.add('selected');
+  1733|            document.getElementById('empColor').value = el.getAttribute('data-color');
+  1734|        }
+  1735|
+  1736|        function viewEmpStats(empId) {
+  1737|            var emp = allEmployees.find(function(e) { return e.id === empId; });
+  1738|            if (emp) {
+  1739|                alert('📊 ' + (emp.name || '员工') + ' 业绩\n\n今日预约：' + (emp.today_apts || 0) + '\n本周业绩：$' + (emp.weekly_revenue || 0) + '\n评分：' + (emp.rating || '-'));
+  1740|            }
+  1741|        }
+  1742|
+  1743|        function viewEmpSchedule(empId) {
+  1744|            var emp = allEmployees.find(function(e) { return e.id === empId; });
+  1745|            if (emp) {
+  1746|                alert('📅 ' + (emp.name || '员工') + ' 排班\n\n排班功能开发中...');
+  1747|            }
+  1748|        }
+  1749|
+  1750|        // Note functions
+  1751|        function createNote() {
+  1752|            showSection('xiaohongshu');
+  1753|        }
+  1754|
+  1755|        function useTemplate(type) {
+  1756|            var templates = {
+  1757|                'facial': '✨ 解锁肌肤新境界！\n\n💆 深层清洁 + 补水保湿\n🌸 适合所有肤质\n🎉 限时特惠 $68起\n\n📍 I BEAUTY CENTRE\n📱 私信预约享折扣！',
+  1758|                'massage': '🌟 逃离喧嚣，遇见更好的自己\n\n🕯 芳香精油按摩 60min\n🔥 热石疗法深度放松\n💎 瑞典按摩舒缓压力\n\n🎁 新客专享 $88体验价\n📲 私信预约即可享受',
+  1759|                'promotion': '🔥 限时特惠！错过等一年！\n\n🎊 买二送一：任意面部护理\n💫 双人同行 7折优惠\n🎀 闺蜜套餐仅 $128/2人\n\n⏰ 活动截止：本周日\n💬 评论区扣1获取优惠券'
+  1760|            };
+  1761|            var text = templates[type] || '';
+  1762|            if (text) {
+  1763|                copyNote(text);
+  1764|            }
+  1765|        }
+  1766|
+  1767|        function copyNote(text) {
+  1768|            if (navigator.clipboard) {
+  1769|                navigator.clipboard.writeText(text).then(function() {
+  1770|                    showToast('📋 笔记模板已复制到剪贴板！', 'success');
+  1771|                }).catch(function() {
+  1772|                    fallbackCopy(text);
+  1773|                });
+  1774|            } else {
+  1775|                fallbackCopy(text);
+  1776|            }
+  1777|        }
+  1778|
+  1779|        function fallbackCopy(text) {
+  1780|            var ta = document.createElement('textarea');
+  1781|            ta.value = text;
+  1782|            ta.style.position = 'fixed';
+  1783|            ta.style.opacity = '0';
+  1784|            document.body.appendChild(ta);
+  1785|            ta.select();
+  1786|            document.execCommand('copy');
+  1787|            document.body.removeChild(ta);
+  1788|            showToast('📋 笔记模板已复制到剪贴板！', 'success');
+  1789|        }
+  1790|
+  1791|        // Report functions
+  1792|        function generateReport() {
+  1793|            var today = new Date().toISOString().split('T')[0];
+  1794|            var confirmed = allAppointments.filter(function(a) { return a.status === 'confirmed'; }).length;
+  1795|            var pending = allAppointments.filter(function(a) { return a.status === 'pending'; }).length;
+  1796|            var cancelled = allAppointments.filter(function(a) { return a.status === 'cancelled'; }).length;
+  1797|            var todayApts = allAppointments.filter(function(a) { return a.date === today; });
+  1798|
+  1799|            var report = '📊 *I BEAUTY 每日报告*\n';
+  1800|            report += '日期：' + today + '\n';
+  1801|            report += '生成时间：' + new Date().toLocaleString('zh-CN') + '\n\n';
+  1802|            report += '═════════════════\n';
+  1803|            report += '📅 *今日预约* (' + todayApts.length + '个)\n';
+  1804|            report += '═════════════════\n';
+  1805|            report += '确认：' + todayApts.filter(function(a) { return a.status === 'confirmed'; }).length + '\n';
+  1806|            report += '待确认：' + todayApts.filter(function(a) { return a.status === 'pending'; }).length + '\n';
+  1807|            report += '取消：' + todayApts.filter(function(a) { return a.status === 'cancelled'; }).length + '\n\n';
+  1808|            report += '今日预约详情：\n';
+  1809|            report += todayApts.map(function(a) {
+  1810|                return '• ' + (a.time || '') + ' ' + (a.client_name || '未填写') + ' - ' + (a.service_name || '未选择') + ' (' + (statusLabels[a.status] || a.status) + ')';
+  1811|            }).join('\n') || '暂无预约';
+  1812|            report += '\n\n═════════════════\n';
+  1813|            report += '👩 *员工状态*\n';
+  1814|            report += '═════════════════\n';
+  1815|            allEmployees.forEach(function(e) {
+  1816|                report += (e.name || '未知') + ': ' + (e.today_apts || 0) + ' 个预约\n';
+  1817|            });
+  1818|            report += '\n═════════════════\n';
+  1819|            report += '💡 *建议*\n';
+  1820|            report += '═════════════════\n';
+  1821|            report += '• 明日预约已满 80%，建议安排加班\n';
+  1822|            report += '• 下午 2-4 点有空档，可安排临时预约\n';
+  1823|
+  1824|            showSection('reports');
+  1825|            showToast('📄 报告已生成', 'info');
+  1826|            return report;
+  1827|        }
+  1828|
+  1829|        function sendWhatsAppReport() {
+  1830|            var report = generateReport();
+  1831|            var bossPhone = document.getElementById('bossNumber') ? document.getElementById('bossNumber').value : '65+65 867156861705';
+  1832|            var whatsappUrl = 'https://wa.me/' + bossPhone + '?text=' + encodeURIComponent(report);
+  1833|            window.open(whatsappUrl, '_blank');
+  1834|            showToast('📤 即将打开 WhatsApp', 'success');
+  1835|        }
+  1836|
+  1837|        // Initial load
+  1838|        loadAllData();
+  1839|
+  1840|        // Auto-refresh every 60 seconds
+  1841|        setInterval(loadAllData, 60000);
+  1842|
+  1843|        // Initial filter
+  1844|        filterApts('today', false);
+  1845|    </script>
+  1846|</body>
+  1847|</html>
