@@ -1,558 +1,557 @@
-     1|<!DOCTYPE html>
-     2|<html lang="zh-CN">
-     3|<head>
-     4|    <meta charset="UTF-8">
-     5|    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|    <title>I BEAUTY | AI 智能预约助手</title>
-     7|    <style>
-     8|        :root { --primary: #c41e3a; --bg: #f5f7fa; --chat-bg: #ffffff; }
-     9|        * { margin: 0; padding: 0; box-sizing: border-box; }
-    10|        body { font-family: 'Source Sans 3', sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; }
-    11|        .platform-selector { display: flex; gap: 12px; padding: 12px 20px; background: white; border-bottom: 1px solid #e0e0e0; }
-    12|        .platform-btn { flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; }
-    13|        .platform-btn.active[data-platform="whatsapp"] { border-color: #25d366; background: rgba(37,211,102,0.1); }
-    14|        .platform-btn.active[data-platform="telegram"] { border-color: #0088cc; background: rgba(0,136,204,0.1); }
-    15|        .header { background: linear-gradient(135deg, var(--primary), #a01830); color: white; padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
-    16|        .header-avatar { width: 40px; height: 40px; border-radius: 50%; background: white; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; }
-    17|        .header-info h1 { font-size: 16px; font-weight: 600; }
-    18|        .header-info p { font-size: 12px; opacity: 0.9; }
-    19|        .chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-    20|        .message { max-width: 80%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; animation: fadeIn 0.3s ease; }
-    21|        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    22|        .message.bot { background: var(--chat-bg); align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    23|        .message.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-    24|        .message-options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    25|        .option-btn { padding: 8px 16px; background: rgba(196,30,58,0.1); color: var(--primary); border: 1px solid var(--primary); border-radius: 20px; font-size: 13px; cursor: pointer; }
-    26|        .option-btn:hover { background: var(--primary); color: white; }
-    27|        .input-area { background: white; padding: 16px; display: flex; gap: 12px; border-top: 1px solid #e0e0e0; }
-    28|        .input-field { flex: 1; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 24px; font-size: 14px; outline: none; }
-    29|        .input-field:focus { border-color: var(--primary); }
-    30|        .send-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-    31|        .selector { background: var(--chat-bg); padding: 16px; border-radius: 12px; margin-top: 12px; }
-    32|        .selector-title { font-weight: 600; margin-bottom: 12px; text-align: center; }
-    33|        .selector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    34|        .selector-item { padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s; }
-    35|        .selector-item:hover { border-color: var(--primary); background: rgba(196,30,58,0.05); }
-    36|        .appointment-card { background: linear-gradient(135deg, #fff5f6, #f8f9fa); border: 2px solid #ff85a2; border-radius: 12px; padding: 16px; margin-top: 12px; }
-    37|        .appointment-card h4 { color: #ff477e; margin-bottom: 12px; font-size: 16px; text-align: center; }
-    38|        .detail-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px dashed #e0e0e0; }
-    39|        .detail-row:last-child { border-bottom: none; margin-top: 8px; padding-top: 8px; border-top: 2px solid #ff477e; font-weight: 600; font-size: 14px; }
-    40|    </style>
-    41|</head>
-    42|<body>
-    43|    <div class="platform-selector">
-    44|        <button class="platform-btn active" data-platform="whatsapp" onclick="window.switchPlatform('whatsapp')">💬 WhatsApp</button>
-    45|        <button class="platform-btn" data-platform="telegram" onclick="window.switchPlatform('telegram')">✈️ Telegram</button>
-    46|    </div>
-    47|    <header class="header">
-    48|        <div class="header-avatar">AI</div>
-    49|        <div class="header-info">
-    50|            <h1>I BEAUTY 预约助手</h1>
-    51|            <p id="statusText">在线 · 营业时间 09:00-23:00</p>
-    52|        </div>
-    53|    </header>
-    54|    <div class="chat-container" id="chatContainer">
-    55|        <div class="message bot">
-    56|            您好！我是 I BEAUTY CENTRE 的 AI 预约助手 💆‍♀️<br><br>
-    57|            我可以帮您：<b>预约服务、查询预约、取消或改期</b><br><br>
-    58|            <div class="message-options">
-    59|                <button class="option-btn" onclick="handleQuickAction('预约面部护理')">💆 预约 Facial</button>
-    60|                <button class="option-btn" onclick="handleQuickAction('预约按摩')">💆 预约按摩</button>
-    61|                <button class="option-btn" onclick="handleQuickAction('查询我的预约')">📅 我的预约</button>
-    62|            </div>
-    63|        </div>
-    64|    </div>
-    65|    <div class="input-area">
-    66|        <input type="text" class="input-field" id="messageInput" placeholder="输入您的需求，如：明天下午 2 点找 Annie 做 Facial｜在线预约：http://45.76.153.191:8081/chat-booking.html" onkeypress="if(event.key==='Enter')handleSend()">
-    67|        <button class="send-btn" onclick="handleSend()">➤</button>
-    68|    </div>
-    69|    <script>
-    70|        const API_BASE = 'http://45.76.153.191:8082/api';
-    71|        let bookingDraft = { step: null, service_id: null, service_name: null, duration: null, price: null, employee_id: null, employee_name: null, date: null, time: null, submitted: false };
-    72|        let services = [], employees = [], availableSlots = [];
-    73|        
-    74|        // 初始化
-    75|        window.addEventListener('DOMContentLoaded', function() {
-    76|            console.log('🚀 initializing...');
-    77|            loadData();
-    78|        });
-    79|        
-    80|        // 全局函数
-    81|        window.handleQuickAction = function(text) {
-    82|            console.log('✅ Quick action:', text);
-    83|            document.getElementById('messageInput').value = text;
-    84|            handleSend();
-    85|        };
-    86|        
-    87|        window.switchPlatform = function(platform) {
-    88|            document.querySelectorAll('.platform-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.platform === platform));
-    89|        };
-    90|        
-    91|        window.handleSend = function() {
-    92|            const input = document.getElementById('messageInput');
-    93|            const text = input.value.trim();
-    94|            if (!text) return;
-    95|            addUserMessage(text);
-    96|            input.value = '';
-    97|            processMessage(text);
-    98|        };
-    99|        
-   100|        // 加载数据
-   101|        async function loadData() {
-   102|            try {
-   103|                const [s, e] = await Promise.all([
-   104|                    fetch(API_BASE + '/services').then(r => r.json()),
-   105|                    fetch(API_BASE + '/employees').then(r => r.json())
-   106|                ]);
-   107|                services = s.services || [];
-   108|                employees = e.employees || [];
-   109|                console.log('✅ Loaded:', services.length, 'services,', employees.length, 'employees');
-   110|            } catch (err) {
-   111|                console.error('❌ Load error:', err);
-   112|                // Fallback data
-   113|                services = [
-   114|                    {id:1,name:'深层清洁 Facial',duration:60,price:68,category:'facial'},
-   115|                    {id:2,name:'补水嫩肤 Facial',duration:75,price:88,category:'facial'},
-   116|                    {id:3,name:'美白祛斑 Facial',duration:90,price:108,category:'facial'},
-   117|                    {id:4,name:'抗衰除皱 Facial',duration:110,price:128,category:'facial'},
-   118|                    {id:5,name:'暗疮护理 Facial',duration:120,price:138,category:'facial'},
-   119|                    {id:6,name:'全身放松按摩',duration:60,price:68,category:'massage'},
-   120|                    {id:7,name:'消脂塑型按摩',duration:60,price:88,category:'massage'},
-   121|                    {id:8,name:'经络排毒按摩',duration:90,price:199,category:'massage'},
-   122|                    {id:9,name:'艾灸养生',duration:60,price:88,category:'wellness'},
-   123|                    {id:10,name:'嫁接睫毛',duration:90,price:68,category:'beauty'}
-   124|                ];
-   125|                employees = [
-   126|                    {id:1,name:'Annie',role:'高级美容师'},
-   127|                    {id:2,name:'Mei',role:'按摩专家'},
-   128|                    {id:3,name:'Lin',role:'美容师'}
-   129|                ];
-   130|            }
-   131|        }
-   132|        
-   133|        // 处理消息
-   134|        function processMessage(text) {
-   135|            // 检查是否在预约流程中
-   136|            if (bookingDraft.step === 'select_service') {
-   137|                handleServiceSelection(text);
-   138|                return;
-   139|            }
-   140|            if (bookingDraft.step === 'select_staff') {
-   141|                handleStaffSelection(text);
-   142|                return;
-   143|            }
-   144|            if (bookingDraft.step === 'select_date') {
-   145|                handleDateSelection(text);
-   146|                return;
-   147|            }
-   148|            if (bookingDraft.step === 'select_time') {
-   149|                handleTimeSelection(text);
-   150|                return;
-   151|            }
-   152|            // 联系信息输入
-   153|            if (bookingDraft.step === 'input_contact' && !bookingDraft.submitted) {
-   154|                const parts = text.split(/\s+/);
-   155|                if (parts.length >= 2) {
-   156|                    bookingDraft.submitted = true;
-   157|                    submitBooking(parts[0], parts[1]);
-   158|                    return;
-   159|                }
-   160|            }
-   161|            // 兼容旧版：没有 step 标记时的后备检查
-   162|            if (bookingDraft.date && bookingDraft.time && !bookingDraft.submitted) {
-   163|                const parts = text.split(/\s+/);
-   164|                if (parts.length >= 2) {
-   165|                    bookingDraft.submitted = true;
-   166|                    submitBooking(parts[0], parts[1]);
-   167|                    return;
-   168|                }
-   169|            }
-   170|            
-   171|            // 初始对话
-   172|            if (text.includes('预约') && (text.includes('facial') || text.includes('护理') || text.toLowerCase().includes('face'))) {
-   173|                bookingDraft.step = 'select_service';
-   174|                bookingDraft.category = 'facial';
-   175|                displayServiceSelector('facial');
-   176|            } else if (text.includes('预约') && text.includes('按摩')) {
-   177|                bookingDraft.step = 'select_service';
-   178|                bookingDraft.category = 'massage';
-   179|                displayServiceSelector('massage');
-   180|            } else if (text.includes('取消') || text.includes('改期')) {
-   181|                addBotMessage('请问您的姓名或电话号码？我帮您查询预约。');
-   182|            } else if (text.includes('我的预约') || text.includes('查询')) {
-   183|                addBotMessage('请问您的姓名或电话号码？我帮您查询预约。');
-   184|            } else {
-   185|                addBotMessage('您好！我是 I BEAUTY 预约助手 💆‍♀️<br>我可以帮您：<b>预约服务、查询预约、取消或改期</b><br>请问有什么可以帮您？', 
-   186|                    ['💆 预约 Facial', '💆 预约按摩']);
-   187|            }
-   188|        }
-   189|        
-   190|        // 添加用户消息
-   191|        function addUserMessage(text) {
-   192|            const msg = document.createElement('div');
-   193|            msg.className = 'message user';
-   194|            msg.innerHTML = text.replace(/\n/g, '<br>');
-   195|            document.getElementById('chatContainer').appendChild(msg);
-   196|            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
-   197|        }
-   198|        
-   199|        // 添加机器人消息
-   200|        function addBotMessage(html, options) {
-   201|            const msg = document.createElement('div');
-   202|            msg.className = 'message bot';
-   203|            msg.innerHTML = html;
-   204|            if (options && options.length > 0) {
-   205|                const optDiv = document.createElement('div');
-   206|                optDiv.className = 'message-options';
-   207|                options.forEach(function(opt) {
-   208|                    const btn = document.createElement('button');
-   209|                    btn.className = 'option-btn';
-   210|                    btn.textContent = opt;
-   211|                    btn.onclick = function() { handleQuickAction(opt); };
-   212|                    optDiv.appendChild(btn);
-   213|                });
-   214|                msg.appendChild(optDiv);
-   215|            }
-   216|            document.getElementById('chatContainer').appendChild(msg);
-   217|            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
-   218|        }
-   219|        
-   220|        // 显示服务选择器
-   221|        function displayServiceSelector(category) {
-   222|            var filtered = category === 'facial' ? 
-   223|                services.filter(function(s) { return s.category === 'facial'; }) :
-   224|                services.filter(function(s) { return s.category === 'massage'; });
-   225|            
-   226|            var html = '<div class="selector" style="background:linear-gradient(135deg, #fff0f3, #fff); border:2px solid #ffb6c1; border-radius:12px;">' +
-   227|                '<div class="selector-title" style="color:#ff69b4;">💖 选择您喜欢的服务</div>' +
-   228|                '<div class="selector-grid">';
-   229|            
-   230|            filtered.forEach(function(s) {
-   231|                html += '<div class="selector-item" onclick="handleServiceSelectionById(' + s.id + ')">' +
-   232|                    '<div style="font-size:20px;">💆</div>' +
-   233|                    '<div style="font-weight:600;">' + s.name + '</div>' +
-   234|                    '<div style="font-size:12px;color:#ff69b4;">💰 $' + s.price + ' · ⏱️ ' + s.duration + '分钟</div>' +
-   235|                    '</div>';
-   236|            });
-   237|            
-   238|            html += '</div></div>';
-   239|            addBotMessage(html);
-   240|        }
-   241|        
-   242|        // 通过 ID 处理服务选择
-   243|        window.handleServiceSelectionById = function(serviceId) {
-   244|            var service = services.find(function(s) { return s.id === serviceId; });
-   245|            if (!service) {
-   246|                addBotMessage('❌ 未找到该服务，请重新选择。');
-   247|                return;
-   248|            }
-   249|            
-   250|            console.log('✅ Service selected:', service.name);
-   251|            bookingDraft.service_id = service.id;
-   252|            bookingDraft.service_name = service.name;
-   253|            bookingDraft.duration = service.duration;
-   254|            bookingDraft.price = service.price;
-   255|            bookingDraft.step = 'select_staff';
-   256|            
-   257|            addBotMessage('✅ 已选择：<b>' + service.name + '</b> ($' + service.price + ', ' + service.duration + '分钟)');
-   258|            displayStaffSelector();
-   259|        };
-   260|        
-   261|        // 显示员工选择器
-   262|        function displayStaffSelector() {
-   263|            var html = '<div class="selector" style="background:linear-gradient(135deg, #f0f8ff, #fff); border:2px solid #87ceeb; border-radius:12px;">' +
-   264|                '<div class="selector-title" style="color:#4682b4;">👩‍️ 选择您的专属美容师</div>' +
-   265|                '<div class="selector-grid">';
-   266|            
-   267|            employees.forEach(function(e) {
-   268|                var emoji = e.name === 'Annie' ? '🌸' : (e.name === 'Mei' ? '🌺' : '🌼');
-   269|                html += '<div class="selector-item" onclick="handleStaffSelectionByName(\'' + e.name + '\')">' +
-   270|                    '<div style="font-size:24px;">' + emoji + '</div>' +
-   271|                    '<div style="font-weight:600;">' + e.name + '</div>' +
-   272|                    '<div style="font-size:11px;color:#87ceeb;">' + e.role + '</div>' +
-   273|                    '</div>';
-   274|            });
-   275|            
-   276|            html += '</div></div>';
-   277|            
-   278|            addBotMessage(html);
-   279|        }
-   280|        
-   281|        // 处理员工选择
-   282|        window.handleStaffSelectionByName = function(staffName) {
-   283|            var staff = employees.find(function(e) { return e.name === staffName; });
-   284|            if (!staff) {
-   285|                addBotMessage('❌ 未找到该美容师，请重新选择。');
-   286|                return;
-   287|            }
-   288|            
-   289|            bookingDraft.employee_id = staff.id;
-   290|            bookingDraft.employee_name = staff.name;
-   291|            bookingDraft.step = 'select_date';
-   292|            
-   293|            addBotMessage('✅ 已选择美容师：<b>' + staff.name + '</b>');
-   294|            displayDateSelector();
-   295|        };
-   296|        
-   297|        // 显示日期选择器
-   298|        function displayDateSelector() {
-   299|            var dates = [], emojis = ['🌟', '✨', '💫', '⭐', '🌈', '🌤️', '☀️'];
-   300|            var today = new Date();
-   301|            
-   302|            for (var i = 0; i < 7; i++) {
-   303|                var d = new Date(today);
-   304|                d.setDate(d.getDate() + i);
-   305|                var display = i === 0 ? '今天' : (i === 1 ? '明天' : (d.getMonth()+1) + '-' + d.getDate());
-   306|                dates.push({ 
-   307|                    date: d.toISOString().split('T')[0], 
-   308|                    display: display,
-   309|                    emoji: emojis[i] 
-   310|                });
-   311|            }
-   312|            
-   313|            var html = '<div class="selector" style="background:linear-gradient(135deg, #fffaf0, #fff); border:2px solid #ffd700; border-radius:12px;">' +
-   314|                '<div class="selector-title" style="color:#daa520;">📅 选择方便的日期</div>' +
-   315|                '<div class="selector-grid">';
-   316|            
-   317|            dates.forEach(function(d) {
-   318|                html += '<div class="selector-item" onclick="handleDateSelection(\'' + d.display + '\')">' +
-   319|                    '<div style="font-size:20px;">' + d.emoji + '</div>' +
-   320|                    '<div style="font-weight:600;">' + d.display + '</div>' +
-   321|                    '<div style="font-size:11px;color:#daa520;">' + d.date + '</div>' +
-   322|                    '</div>';
-   323|            });
-   324|            
-   325|            html += '</div></div>';
-   326|            addBotMessage(html);
-   327|        }
-   328|        
-   329|        // 处理日期选择
-   330|        window.handleDateSelection = function(text) {
-   331|            var today = new Date();
-   332|            
-   333|            if (text.includes('今天')) {
-   334|                bookingDraft.date = today.toISOString().split('T')[0];
-   335|            } else if (text.includes('明天')) {
-   336|                var t = new Date(today);
-   337|                t.setDate(t.getDate() + 1);
-   338|                bookingDraft.date = t.toISOString().split('T')[0];
-   339|            } else if (text.includes('后天')) {
-   340|                var t2 = new Date(today);
-   341|                t2.setDate(t2.getDate() + 2);
-   342|                bookingDraft.date = t2.toISOString().split('T')[0];
-   343|            } else {
-   344|                var m = text.match(/(\d{1,2})[-\/](\d{1,2})/);
-   345|                if (m) {
-   346|                    var dt = new Date(today.getFullYear(), parseInt(m[1])-1, parseInt(m[2]));
-   347|                    bookingDraft.date = dt.toISOString().split('T')[0];
-   348|                } else {
-   349|                    addBotMessage('请输入日期，如：5-10 或 明天');
-   350|                    return;
-   351|                }
-   352|            }
-   353|            
-   354|            bookingDraft.step = 'select_time';
-   355|            addBotMessage('✅ 已选择日期：<b>' + text + '</b>');
-   356|            displayTimeSlots();
-   357|        };
-   358|        
-   359|        // 显示时间选择器
-   360|        function displayTimeSlots() {
-   361|            var url = API_BASE + '/availability?employee_id=' + (bookingDraft.employee_id || 1) + 
-   362|                      '&date=' + bookingDraft.date + '&duration=' + (bookingDraft.duration || 60);
-   363|            
-   364|            fetch(url)
-   365|                .then(function(res) { return res.json(); })
-   366|                .then(function(data) {
-   367|                    availableSlots = data.slots || [];
-   368|                    var availableTimes = availableSlots.filter(function(s) { return s.available; }).slice(0, 16);
-   369|                    
-   370|                    var html = '<div class="selector" style="background:linear-gradient(135deg, #f0fff4, #fff); border:2px solid #98fb98; border-radius:12px;">' +
-   371|                        '<div class="selector-title" style="color:#32cd32;">🕐 选择合适的时间段</div>' +
-   372|                        '<div style="font-size:12px;color:#888;margin-bottom:10px;text-align:center;">⏰ 营业时间：09:00 - 23:00（早上 9 点 - 晚上 11 点）</div>' +
-   373|                        '<div class="selector-grid">';
-   374|                    
-   375|                    availableTimes.forEach(function(t) {
-   376|                        var parts = t.time.split(':');
-   377|                        var h = parseInt(parts[0]), m = parseInt(parts[1]);
-   378|                        var endMin = h * 60 + m + (bookingDraft.duration || 60);
-   379|                        var eh = Math.floor(endMin / 60), em = endMin % 60;
-   380|                        
-   381|                        var ampm = h >= 12 ? 'PM' : 'AM';
-   382|                        var displayHour = h > 12 ? h - 12 : (h === 0 ? 12 : h);
-   383|                        var displayTime = displayHour + ':' + String(m).padStart(2,'0') + ' ' + ampm;
-   384|                        
-   385|                        var eampm = eh >= 12 ? 'PM' : 'AM';
-   386|                        var edh = eh > 12 ? eh - 12 : (eh === 0 ? 12 : eh);
-   387|                        var endTimeDisplay = edh + ':' + String(em).padStart(2,'0') + ' ' + eampm;
-   388|                        
-   389|                        html += '<div class="selector-item" onclick="handleTimeSelection(\'' + t.time + '\')">' +
-   390|                            '<div style="font-weight:600;">' + displayTime + ' - ' + endTimeDisplay + '</div>' +
-   391|                            '<div style="font-size:10px;color:#888;">(' + t.time + ' - ' + String(eh).padStart(2,'0') + ':' + String(em).padStart(2,'0') + ')</div>' +
-   392|                            '</div>';
-   393|                    });
-   394|                    
-   395|                    html += '</div></div>';
-   396|                    addBotMessage(html);
-   397|                })
-   398|                .catch(function(err) {
-   399|                    console.error('Error:', err);
-   400|                    addBotMessage('⚠️ 无法获取可用时间，请稍后再试。');
-   401|                });
-   402|        }
-   403|        
-   404|        // 处理时间选择
-   405|        window.handleTimeSelection = function(text) {
-   406|            console.log('⏰ Time selected:', text);
-   407|            
-   408|            // 宽松验证：只要有数字和冒号就接受
-   409|            if (!text || text.trim().length === 0) {
-   410|                addBotMessage('⚠️ 请选择一个时间');
-   411|                return;
-   412|            }
-   413|            
-   414|            // 标准化时间：提取 HH:MM 格式
-   415|            var match = text.match(/(\d{1,2}:\d{2})/);
-   416|            if (match) {
-   417|                bookingDraft.time = match[1];
-   418|            } else {
-   419|                bookingDraft.time = text.trim();
-   420|            }
-   421|            
-   422|            console.log('✅ Time saved:', bookingDraft.time);
-   423|            addBotMessage('✅ 已选择时间：<b>' + text + '</b>');
-   424|            displayConfirmation();
-   425|        };
-   426|        
-   427|        // 显示确认表单
-   428|        function displayConfirmation() {
-   429|            console.log('📋 Displaying confirmation:', bookingDraft);
-   430|            
-   431|            // 宽松验证：允许 "H:MM", "HH:MM", 或带空格格式
-   432|            var timeValid = bookingDraft.time && bookingDraft.time.trim().length > 0;
-   433|            if (!timeValid) {
-   434|                addBotMessage('⚠️ 时间选择无效，请重新选择');
-   435|                bookingDraft.step = 'select_time';
-   436|                displayTimeSlots();
-   437|                return;
-   438|            }
-   439|            
-   440|            // 标准化时间格式为 HH:MM
-   441|            var timeStr = bookingDraft.time.trim();
-   442|            if (!timeStr.match(/^\d{1,2}:\d{2}$/)) {
-   443|                // 尝试从 availableSlots 中查找匹配的时间
-   444|                var found = availableSlots.find(function(s) { return s.time === timeStr || s.start_time === timeStr; });
-   445|                if (found) {
-   446|                    bookingDraft.time = found.time || found.start_time;
-   447|                }
-   448|            }
-   449|            
-   450|            var parts = bookingDraft.time.split(':').map(Number);
-   451|            var endMin = parts[0] * 60 + parts[1] + bookingDraft.duration;
-   452|            var eh = Math.floor(endMin / 60), em = endMin % 60;
-   453|            var endTime = String(eh).padStart(2,'0') + ':' + String(em).padStart(2,'0');
-   454|            
-   455|            var html = '<div class="appointment-card">' +
-   456|                '<h4>🌸 预约确认 🌸</h4>' +
-   457|                '<div class="detail-row"><span>💆 服务项目</span><span>' + (bookingDraft.service_name || '未选择') + '</span></div>' +
-   458|                '<div class="detail-row"><span>👩 美容师</span><span>' + (bookingDraft.employee_name || '未选择') + '</span></div>' +
-   459|                '<div class="detail-row"><span>📅 日期</span><span>' + (bookingDraft.date || '未选择') + '</span></div>' +
-   460|                '<div class="detail-row"><span>🕐 时间段</span><span>' + bookingDraft.time + ' - ' + endTime + '</span></div>' +
-   461|                '<div class="detail-row"><span>⏱️ 服务时长</span><span>' + bookingDraft.duration + ' 分钟</span></div>' +
-   462|                '<div class="detail-row"><span>💰 价格</span><span>$' + bookingDraft.price + '</span></div>' +
-   463|                '</div>';
-   464|            
-   465|            addBotMessage(html);
-   466|            addBotMessage('💌 请填写您的 <b>姓名</b> 和 <b>电话号码</b>，例如：林女士 91234567 ✨');
-   467|            
-   468|            // 切换到联系信息输入状态，避免被 handleTimeSelection 拦截
-   469|            bookingDraft.step = 'input_contact';
-   470|        }
-   471|        
-   472|        // 格式化显示时间
-   473|        function formatDisplayTime(time) {
-   474|            if (!time) return '';
-   475|            return String(time).substring(0, 5);
-   476|        }
-   477|        
-   478|        // 提交预约
-   479|        function submitBooking(name, phone) {
-   480|            var requestBody = {
-   481|                client_name: name,
-   482|                client_phone: phone,
-   483|                service_id: bookingDraft.service_id,
-   484|                service_name: bookingDraft.service_name,
-   485|                employee_id: bookingDraft.employee_id || 1,
-   486|                employee_name: bookingDraft.employee_name || 'Annie',
-   487|                date: bookingDraft.date,
-   488|                time: bookingDraft.time,
-   489|                duration: bookingDraft.duration || 60,
-   490|                price: bookingDraft.price || 68,
-   491|                notes: 'Via chat',
-   492|                status: 'pending'
-   493|            };
-   494|            
-   495|            console.log('📤 Submitting booking:', requestBody);
-   496|            
-   497|            fetch(API_BASE + '/appointments', {
-   498|                method: 'POST',
-   499|                headers: { 'Content-Type': 'application/json' },
-   500|                body: JSON.stringify(requestBody)
-   501|            })
-   502|            .then(function(res) { return res.json(); })
-   503|            .then(function(result) {
-   504|                if (result.success) {
-   505|                    var apt = result.appointment;
-   506|                    addBotMessage('✅ <b>预约成功！</b><br>' +
-   507|                        '📋 ID: #' + apt.id + '<br>' +
-   508|                        '💆 ' + apt.service_name + '<br>' +
-   509|                        '📅 ' + (apt.date || apt.appointment_date) + ' ' + formatDisplayTime(apt.time || apt.appointment_time) + '<br>' +
-   510|                        '👩 ' + apt.employee_name + '<br>' +
-   511|                        '💰 $' + apt.price);
-   512|                    sendToBoss(apt);
-   513|                    bookingDraft = { step: null, submitted: false };
-   514|                } else {
-   515|                    addBotMessage('❌ 预约失败，请重试。<br>错误：' + (result.error || '未知错误'));
-   516|                }
-   517|            })
-   518|            .catch(function(err) {
-   519|                console.error('Error:', err);
-   520|                addBotMessage('❌ 系统错误，请稍后再试。');
-   521|            });
-   522|        }
-   523|        
-   524|        // 发送 WhatsApp 通知
-   525|        function sendToBoss(apt) {
-   526|            var boss = '65+65 867156861705';
-   527|            var t = String(apt.time || apt.appointment_time || bookingDraft.time || '待定');
-   528|            var tDisplay = formatDisplayTime(t);
-   529|            var parts = t.split(':').map(Number);
-   530|            var endMin = (parts[0] * 60 + parts[1]) + (apt.duration || bookingDraft.duration);
-   531|            var eh = Math.floor(endMin / 60), em = endMin % 60;
-   532|            var endTime = String(eh).padStart(2,'0') + ':' + String(em).padStart(2,'0');
-   533|            
-   534|            var msg = '🌸 *新预约通知* 🌸\n\n' +
-   535|                '━━━━━━━━━━━━━\n' +
-   536|                '📋 *预约详情*\n' +
-   537|                '━━━━━━━━━━━━━\n' +
-   538|                '💆 项目：' + (apt.service_name || bookingDraft.service_name) + '\n' +
-   539|                '💰 价格：$' + (apt.price || bookingDraft.price) + '\n' +
-   540|                '⏱️ 时长：' + (apt.duration || bookingDraft.duration) + '分钟\n' +
-   541|                '🕐 时间段：' + tDisplay + ' - ' + endTime + '\n' +
-   542|                '📅 日期：' + (apt.date || apt.appointment_date || bookingDraft.date) + '\n' +
-   543|                '👩 美容师：' + (apt.employee_name || bookingDraft.employee_name) + '\n' +
-   544|                '\n━━━━━━━━━━━━━\n' +
-   545|                '🙋 *顾客信息*\n' +
-   546|                '━━━━━━━━━━━━━\n' +
-   547|                '📛 称呼：' + (apt.client_name || '') + '\n' +
-   548|                '📞 电话：' + (apt.client_phone || '') + '\n' +
-   549|                '\n请确认预约，谢谢！🙏';
-   550|            
-   551|            setTimeout(function() {
-   552|                window.open('https://wa.me/' + boss + '?text=' + encodeURIComponent(msg), '_blank');
-   553|            }, 1000);
-   554|        }
-   555|    </script>
-   556|</body>
-   557|</html>
-   558|
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I BEAUTY | AI 智能预约助手</title>
+    <style>
+        :root { --primary: #c41e3a; --bg: #f5f7fa; --chat-bg: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Source Sans 3', sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; }
+        .platform-selector { display: flex; gap: 12px; padding: 12px 20px; background: white; border-bottom: 1px solid #e0e0e0; }
+        .platform-btn { flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; }
+        .platform-btn.active[data-platform="whatsapp"] { border-color: #25d366; background: rgba(37,211,102,0.1); }
+        .platform-btn.active[data-platform="telegram"] { border-color: #0088cc; background: rgba(0,136,204,0.1); }
+        .header { background: linear-gradient(135deg, var(--primary), #a01830); color: white; padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
+        .header-avatar { width: 40px; height: 40px; border-radius: 50%; background: white; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .header-info h1 { font-size: 16px; font-weight: 600; }
+        .header-info p { font-size: 12px; opacity: 0.9; }
+        .chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+        .message { max-width: 80%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.bot { background: var(--chat-bg); align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .message.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .message-options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .option-btn { padding: 8px 16px; background: rgba(196,30,58,0.1); color: var(--primary); border: 1px solid var(--primary); border-radius: 20px; font-size: 13px; cursor: pointer; }
+        .option-btn:hover { background: var(--primary); color: white; }
+        .input-area { background: white; padding: 16px; display: flex; gap: 12px; border-top: 1px solid #e0e0e0; }
+        .input-field { flex: 1; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 24px; font-size: 14px; outline: none; }
+        .input-field:focus { border-color: var(--primary); }
+        .send-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .selector { background: var(--chat-bg); padding: 16px; border-radius: 12px; margin-top: 12px; }
+        .selector-title { font-weight: 600; margin-bottom: 12px; text-align: center; }
+        .selector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .selector-item { padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .selector-item:hover { border-color: var(--primary); background: rgba(196,30,58,0.05); }
+        .appointment-card { background: linear-gradient(135deg, #fff5f6, #f8f9fa); border: 2px solid #ff85a2; border-radius: 12px; padding: 16px; margin-top: 12px; }
+        .appointment-card h4 { color: #ff477e; margin-bottom: 12px; font-size: 16px; text-align: center; }
+        .detail-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px dashed #e0e0e0; }
+        .detail-row:last-child { border-bottom: none; margin-top: 8px; padding-top: 8px; border-top: 2px solid #ff477e; font-weight: 600; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="platform-selector">
+        <button class="platform-btn active" data-platform="whatsapp" onclick="window.switchPlatform('whatsapp')">💬 WhatsApp</button>
+        <button class="platform-btn" data-platform="telegram" onclick="window.switchPlatform('telegram')">✈️ Telegram</button>
+    </div>
+    <header class="header">
+        <div class="header-avatar">AI</div>
+        <div class="header-info">
+            <h1>I BEAUTY 预约助手</h1>
+            <p id="statusText">在线 · 营业时间 09:00-23:00</p>
+        </div>
+    </header>
+    <div class="chat-container" id="chatContainer">
+        <div class="message bot">
+            您好！我是 I BEAUTY CENTRE 的 AI 预约助手 💆‍♀️<br><br>
+            我可以帮您：<b>预约服务、查询预约、取消或改期</b><br><br>
+            <div class="message-options">
+                <button class="option-btn" onclick="handleQuickAction('预约面部护理')">💆 预约 Facial</button>
+                <button class="option-btn" onclick="handleQuickAction('预约按摩')">💆 预约按摩</button>
+                <button class="option-btn" onclick="handleQuickAction('查询我的预约')">📅 我的预约</button>
+            </div>
+        </div>
+    </div>
+    <div class="input-area">
+        <input type="text" class="input-field" id="messageInput" placeholder="输入您的需求，如：明天下午 2 点找 Annie 做 Facial｜在线预约：http://45.76.153.191:8083/chat-booking.html" onkeypress="if(event.key==='Enter')handleSend()">
+        <button class="send-btn" onclick="handleSend()">➤</button>
+    </div>
+    <script>
+        const API_BASE = 'http://45.76.153.191:8082/api';
+        let bookingDraft = { step: null, service_id: null, service_name: null, duration: null, price: null, employee_id: null, employee_name: null, date: null, time: null, submitted: false };
+        let services = [], employees = [], availableSlots = [];
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 initializing...');
+            loadData();
+        });
+        
+        // 全局函数
+        window.handleQuickAction = function(text) {
+            console.log('✅ Quick action:', text);
+            document.getElementById('messageInput').value = text;
+            handleSend();
+        };
+        
+        window.switchPlatform = function(platform) {
+            document.querySelectorAll('.platform-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.platform === platform));
+        };
+        
+        window.handleSend = function() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text) return;
+            addUserMessage(text);
+            input.value = '';
+            processMessage(text);
+        };
+        
+        // 加载数据
+        async function loadData() {
+            try {
+                const [s, e] = await Promise.all([
+                    fetch(API_BASE + '/services').then(r => r.json()),
+                    fetch(API_BASE + '/employees').then(r => r.json())
+                ]);
+                services = s.services || [];
+                employees = e.employees || [];
+                console.log('✅ Loaded:', services.length, 'services,', employees.length, 'employees');
+            } catch (err) {
+                console.error('❌ Load error:', err);
+                // Fallback data
+                services = [
+                    {id:1,name:'深层清洁 Facial',duration:60,price:68,category:'facial'},
+                    {id:2,name:'补水嫩肤 Facial',duration:75,price:88,category:'facial'},
+                    {id:3,name:'美白祛斑 Facial',duration:90,price:108,category:'facial'},
+                    {id:4,name:'抗衰除皱 Facial',duration:110,price:128,category:'facial'},
+                    {id:5,name:'暗疮护理 Facial',duration:120,price:138,category:'facial'},
+                    {id:6,name:'全身放松按摩',duration:60,price:68,category:'massage'},
+                    {id:7,name:'消脂塑型按摩',duration:60,price:88,category:'massage'},
+                    {id:8,name:'经络排毒按摩',duration:90,price:199,category:'massage'},
+                    {id:9,name:'艾灸养生',duration:60,price:88,category:'wellness'},
+                    {id:10,name:'嫁接睫毛',duration:90,price:68,category:'beauty'}
+                ];
+                employees = [
+                    {id:1,name:'Annie',role:'高级美容师'},
+                    {id:2,name:'Mei',role:'按摩专家'},
+                    {id:3,name:'Lin',role:'美容师'}
+                ];
+            }
+        }
+        
+        // 处理消息
+        function processMessage(text) {
+            // 检查是否在预约流程中
+            if (bookingDraft.step === 'select_service') {
+                handleServiceSelection(text);
+                return;
+            }
+            if (bookingDraft.step === 'select_staff') {
+                handleStaffSelection(text);
+                return;
+            }
+            if (bookingDraft.step === 'select_date') {
+                handleDateSelection(text);
+                return;
+            }
+            if (bookingDraft.step === 'select_time') {
+                handleTimeSelection(text);
+                return;
+            }
+            // 联系信息输入
+            if (bookingDraft.step === 'input_contact' && !bookingDraft.submitted) {
+                const parts = text.split(/\s+/);
+                if (parts.length >= 2) {
+                    bookingDraft.submitted = true;
+                    submitBooking(parts[0], parts[1]);
+                    return;
+                }
+            }
+            // 兼容旧版：没有 step 标记时的后备检查
+            if (bookingDraft.date && bookingDraft.time && !bookingDraft.submitted) {
+                const parts = text.split(/\s+/);
+                if (parts.length >= 2) {
+                    bookingDraft.submitted = true;
+                    submitBooking(parts[0], parts[1]);
+                    return;
+                }
+            }
+            
+            // 初始对话
+            if (text.includes('预约') && (text.includes('facial') || text.includes('护理') || text.toLowerCase().includes('face'))) {
+                bookingDraft.step = 'select_service';
+                bookingDraft.category = 'facial';
+                displayServiceSelector('facial');
+            } else if (text.includes('预约') && text.includes('按摩')) {
+                bookingDraft.step = 'select_service';
+                bookingDraft.category = 'massage';
+                displayServiceSelector('massage');
+            } else if (text.includes('取消') || text.includes('改期')) {
+                addBotMessage('请问您的姓名或电话号码？我帮您查询预约。');
+            } else if (text.includes('我的预约') || text.includes('查询')) {
+                addBotMessage('请问您的姓名或电话号码？我帮您查询预约。');
+            } else {
+                addBotMessage('您好！我是 I BEAUTY 预约助手 💆‍♀️<br>我可以帮您：<b>预约服务、查询预约、取消或改期</b><br>请问有什么可以帮您？', 
+                    ['💆 预约 Facial', '💆 预约按摩']);
+            }
+        }
+        
+        // 添加用户消息
+        function addUserMessage(text) {
+            const msg = document.createElement('div');
+            msg.className = 'message user';
+            msg.innerHTML = text.replace(/\n/g, '<br>');
+            document.getElementById('chatContainer').appendChild(msg);
+            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+        }
+        
+        // 添加机器人消息
+        function addBotMessage(html, options) {
+            const msg = document.createElement('div');
+            msg.className = 'message bot';
+            msg.innerHTML = html;
+            if (options && options.length > 0) {
+                const optDiv = document.createElement('div');
+                optDiv.className = 'message-options';
+                options.forEach(function(opt) {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = opt;
+                    btn.onclick = function() { handleQuickAction(opt); };
+                    optDiv.appendChild(btn);
+                });
+                msg.appendChild(optDiv);
+            }
+            document.getElementById('chatContainer').appendChild(msg);
+            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+        }
+        
+        // 显示服务选择器
+        function displayServiceSelector(category) {
+            var filtered = category === 'facial' ? 
+                services.filter(function(s) { return s.category === 'facial'; }) :
+                services.filter(function(s) { return s.category === 'massage'; });
+            
+            var html = '<div class="selector" style="background:linear-gradient(135deg, #fff0f3, #fff); border:2px solid #ffb6c1; border-radius:12px;">' +
+                '<div class="selector-title" style="color:#ff69b4;">💖 选择您喜欢的服务</div>' +
+                '<div class="selector-grid">';
+            
+            filtered.forEach(function(s) {
+                html += '<div class="selector-item" onclick="handleServiceSelectionById(' + s.id + ')">' +
+                    '<div style="font-size:20px;">💆</div>' +
+                    '<div style="font-weight:600;">' + s.name + '</div>' +
+                    '<div style="font-size:12px;color:#ff69b4;">💰 $' + s.price + ' · ⏱️ ' + s.duration + '分钟</div>' +
+                    '</div>';
+            });
+            
+            html += '</div></div>';
+            addBotMessage(html);
+        }
+        
+        // 通过 ID 处理服务选择
+        window.handleServiceSelectionById = function(serviceId) {
+            var service = services.find(function(s) { return s.id === serviceId; });
+            if (!service) {
+                addBotMessage('❌ 未找到该服务，请重新选择。');
+                return;
+            }
+            
+            console.log('✅ Service selected:', service.name);
+            bookingDraft.service_id = service.id;
+            bookingDraft.service_name = service.name;
+            bookingDraft.duration = service.duration;
+            bookingDraft.price = service.price;
+            bookingDraft.step = 'select_staff';
+            
+            addBotMessage('✅ 已选择：<b>' + service.name + '</b> ($' + service.price + ', ' + service.duration + '分钟)');
+            displayStaffSelector();
+        };
+        
+        // 显示员工选择器
+        function displayStaffSelector() {
+            var html = '<div class="selector" style="background:linear-gradient(135deg, #f0f8ff, #fff); border:2px solid #87ceeb; border-radius:12px;">' +
+                '<div class="selector-title" style="color:#4682b4;">👩‍️ 选择您的专属美容师</div>' +
+                '<div class="selector-grid">';
+            
+            employees.forEach(function(e) {
+                var emoji = e.name === 'Annie' ? '🌸' : (e.name === 'Mei' ? '🌺' : '🌼');
+                html += '<div class="selector-item" onclick="handleStaffSelectionByName(\'' + e.name + '\')">' +
+                    '<div style="font-size:24px;">' + emoji + '</div>' +
+                    '<div style="font-weight:600;">' + e.name + '</div>' +
+                    '<div style="font-size:11px;color:#87ceeb;">' + e.role + '</div>' +
+                    '</div>';
+            });
+            
+            html += '</div></div>';
+            
+            addBotMessage(html);
+        }
+        
+        // 处理员工选择
+        window.handleStaffSelectionByName = function(staffName) {
+            var staff = employees.find(function(e) { return e.name === staffName; });
+            if (!staff) {
+                addBotMessage('❌ 未找到该美容师，请重新选择。');
+                return;
+            }
+            
+            bookingDraft.employee_id = staff.id;
+            bookingDraft.employee_name = staff.name;
+            bookingDraft.step = 'select_date';
+            
+            addBotMessage('✅ 已选择美容师：<b>' + staff.name + '</b>');
+            displayDateSelector();
+        };
+        
+        // 显示日期选择器
+        function displayDateSelector() {
+            var dates = [], emojis = ['🌟', '✨', '💫', '⭐', '🌈', '🌤️', '☀️'];
+            var today = new Date();
+            
+            for (var i = 0; i < 7; i++) {
+                var d = new Date(today);
+                d.setDate(d.getDate() + i);
+                var display = i === 0 ? '今天' : (i === 1 ? '明天' : (d.getMonth()+1) + '-' + d.getDate());
+                dates.push({ 
+                    date: d.toISOString().split('T')[0], 
+                    display: display,
+                    emoji: emojis[i] 
+                });
+            }
+            
+            var html = '<div class="selector" style="background:linear-gradient(135deg, #fffaf0, #fff); border:2px solid #ffd700; border-radius:12px;">' +
+                '<div class="selector-title" style="color:#daa520;">📅 选择方便的日期</div>' +
+                '<div class="selector-grid">';
+            
+            dates.forEach(function(d) {
+                html += '<div class="selector-item" onclick="handleDateSelection(\'' + d.display + '\')">' +
+                    '<div style="font-size:20px;">' + d.emoji + '</div>' +
+                    '<div style="font-weight:600;">' + d.display + '</div>' +
+                    '<div style="font-size:11px;color:#daa520;">' + d.date + '</div>' +
+                    '</div>';
+            });
+            
+            html += '</div></div>';
+            addBotMessage(html);
+        }
+        
+        // 处理日期选择
+        window.handleDateSelection = function(text) {
+            var today = new Date();
+            
+            if (text.includes('今天')) {
+                bookingDraft.date = today.toISOString().split('T')[0];
+            } else if (text.includes('明天')) {
+                var t = new Date(today);
+                t.setDate(t.getDate() + 1);
+                bookingDraft.date = t.toISOString().split('T')[0];
+            } else if (text.includes('后天')) {
+                var t2 = new Date(today);
+                t2.setDate(t2.getDate() + 2);
+                bookingDraft.date = t2.toISOString().split('T')[0];
+            } else {
+                var m = text.match(/(\d{1,2})[-\/](\d{1,2})/);
+                if (m) {
+                    var dt = new Date(today.getFullYear(), parseInt(m[1])-1, parseInt(m[2]));
+                    bookingDraft.date = dt.toISOString().split('T')[0];
+                } else {
+                    addBotMessage('请输入日期，如：5-10 或 明天');
+                    return;
+                }
+            }
+            
+            bookingDraft.step = 'select_time';
+            addBotMessage('✅ 已选择日期：<b>' + text + '</b>');
+            displayTimeSlots();
+        };
+        
+        // 显示时间选择器
+        function displayTimeSlots() {
+            var url = API_BASE + '/availability?employee_id=' + (bookingDraft.employee_id || 1) + 
+                      '&date=' + bookingDraft.date + '&duration=' + (bookingDraft.duration || 60);
+            
+            fetch(url)
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    availableSlots = data.slots || [];
+                    var availableTimes = availableSlots.filter(function(s) { return s.available; }).slice(0, 16);
+                    
+                    var html = '<div class="selector" style="background:linear-gradient(135deg, #f0fff4, #fff); border:2px solid #98fb98; border-radius:12px;">' +
+                        '<div class="selector-title" style="color:#32cd32;">🕐 选择合适的时间段</div>' +
+                        '<div style="font-size:12px;color:#888;margin-bottom:10px;text-align:center;">⏰ 营业时间：09:00 - 23:00（早上 9 点 - 晚上 11 点）</div>' +
+                        '<div class="selector-grid">';
+                    
+                    availableTimes.forEach(function(t) {
+                        var parts = t.time.split(':');
+                        var h = parseInt(parts[0]), m = parseInt(parts[1]);
+                        var endMin = h * 60 + m + (bookingDraft.duration || 60);
+                        var eh = Math.floor(endMin / 60), em = endMin % 60;
+                        
+                        var ampm = h >= 12 ? 'PM' : 'AM';
+                        var displayHour = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+                        var displayTime = displayHour + ':' + String(m).padStart(2,'0') + ' ' + ampm;
+                        
+                        var eampm = eh >= 12 ? 'PM' : 'AM';
+                        var edh = eh > 12 ? eh - 12 : (eh === 0 ? 12 : eh);
+                        var endTimeDisplay = edh + ':' + String(em).padStart(2,'0') + ' ' + eampm;
+                        
+                        html += '<div class="selector-item" onclick="handleTimeSelection(\'' + t.time + '\')">' +
+                            '<div style="font-weight:600;">' + displayTime + ' - ' + endTimeDisplay + '</div>' +
+                            '<div style="font-size:10px;color:#888;">(' + t.time + ' - ' + String(eh).padStart(2,'0') + ':' + String(em).padStart(2,'0') + ')</div>' +
+                            '</div>';
+                    });
+                    
+                    html += '</div></div>';
+                    addBotMessage(html);
+                })
+                .catch(function(err) {
+                    console.error('Error:', err);
+                    addBotMessage('⚠️ 无法获取可用时间，请稍后再试。');
+                });
+        }
+        
+        // 处理时间选择
+        window.handleTimeSelection = function(text) {
+            console.log('⏰ Time selected:', text);
+            
+            // 宽松验证：只要有数字和冒号就接受
+            if (!text || text.trim().length === 0) {
+                addBotMessage('⚠️ 请选择一个时间');
+                return;
+            }
+            
+            // 标准化时间：提取 HH:MM 格式
+            var match = text.match(/(\d{1,2}:\d{2})/);
+            if (match) {
+                bookingDraft.time = match[1];
+            } else {
+                bookingDraft.time = text.trim();
+            }
+            
+            console.log('✅ Time saved:', bookingDraft.time);
+            addBotMessage('✅ 已选择时间：<b>' + text + '</b>');
+            displayConfirmation();
+        };
+        
+        // 显示确认表单
+        function displayConfirmation() {
+            console.log('📋 Displaying confirmation:', bookingDraft);
+            
+            // 宽松验证：允许 "H:MM", "HH:MM", 或带空格格式
+            var timeValid = bookingDraft.time && bookingDraft.time.trim().length > 0;
+            if (!timeValid) {
+                addBotMessage('⚠️ 时间选择无效，请重新选择');
+                bookingDraft.step = 'select_time';
+                displayTimeSlots();
+                return;
+            }
+            
+            // 标准化时间格式为 HH:MM
+            var timeStr = bookingDraft.time.trim();
+            if (!timeStr.match(/^\d{1,2}:\d{2}$/)) {
+                // 尝试从 availableSlots 中查找匹配的时间
+                var found = availableSlots.find(function(s) { return s.time === timeStr || s.start_time === timeStr; });
+                if (found) {
+                    bookingDraft.time = found.time || found.start_time;
+                }
+            }
+            
+            var parts = bookingDraft.time.split(':').map(Number);
+            var endMin = parts[0] * 60 + parts[1] + bookingDraft.duration;
+            var eh = Math.floor(endMin / 60), em = endMin % 60;
+            var endTime = String(eh).padStart(2,'0') + ':' + String(em).padStart(2,'0');
+            
+            var html = '<div class="appointment-card">' +
+                '<h4>🌸 预约确认 🌸</h4>' +
+                '<div class="detail-row"><span>💆 服务项目</span><span>' + (bookingDraft.service_name || '未选择') + '</span></div>' +
+                '<div class="detail-row"><span>👩 美容师</span><span>' + (bookingDraft.employee_name || '未选择') + '</span></div>' +
+                '<div class="detail-row"><span>📅 日期</span><span>' + (bookingDraft.date || '未选择') + '</span></div>' +
+                '<div class="detail-row"><span>🕐 时间段</span><span>' + bookingDraft.time + ' - ' + endTime + '</span></div>' +
+                '<div class="detail-row"><span>⏱️ 服务时长</span><span>' + bookingDraft.duration + ' 分钟</span></div>' +
+                '<div class="detail-row"><span>💰 价格</span><span>$' + bookingDraft.price + '</span></div>' +
+                '</div>';
+            
+            addBotMessage(html);
+            addBotMessage('💌 请填写您的 <b>姓名</b> 和 <b>电话号码</b>，例如：林女士 91234567 ✨');
+            
+            // 切换到联系信息输入状态，避免被 handleTimeSelection 拦截
+            bookingDraft.step = 'input_contact';
+        }
+        
+        // 格式化显示时间
+        function formatDisplayTime(time) {
+            if (!time) return '';
+            return String(time).substring(0, 5);
+        }
+        
+        // 提交预约
+        function submitBooking(name, phone) {
+            var requestBody = {
+                client_name: name,
+                client_phone: phone,
+                service_id: bookingDraft.service_id,
+                service_name: bookingDraft.service_name,
+                employee_id: bookingDraft.employee_id || 1,
+                employee_name: bookingDraft.employee_name || 'Annie',
+                date: bookingDraft.date,
+                time: bookingDraft.time,
+                duration: bookingDraft.duration || 60,
+                price: bookingDraft.price || 68,
+                notes: 'Via chat',
+                status: 'pending'
+            };
+            
+            console.log('📤 Submitting booking:', requestBody);
+            
+            fetch(API_BASE + '/appointments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(result) {
+                if (result.success) {
+                    var apt = result.appointment;
+                    addBotMessage('✅ <b>预约成功！</b><br>' +
+                        '📋 ID: #' + apt.id + '<br>' +
+                        '💆 ' + apt.service_name + '<br>' +
+                        '📅 ' + (apt.date || apt.appointment_date) + ' ' + formatDisplayTime(apt.time || apt.appointment_time) + '<br>' +
+                        '👩 ' + apt.employee_name + '<br>' +
+                        '💰 $' + apt.price);
+                    sendToBoss(apt);
+                    bookingDraft = { step: null, submitted: false };
+                } else {
+                    addBotMessage('❌ 预约失败，请重试。<br>错误：' + (result.error || '未知错误'));
+                }
+            })
+            .catch(function(err) {
+                console.error('Error:', err);
+                addBotMessage('❌ 系统错误，请稍后再试。');
+            });
+        }
+        
+        // 发送 WhatsApp 通知
+        function sendToBoss(apt) {
+            var boss = '65+65 867156861705';
+            var t = String(apt.time || apt.appointment_time || bookingDraft.time || '待定');
+            var tDisplay = formatDisplayTime(t);
+            var parts = t.split(':').map(Number);
+            var endMin = (parts[0] * 60 + parts[1]) + (apt.duration || bookingDraft.duration);
+            var eh = Math.floor(endMin / 60), em = endMin % 60;
+            var endTime = String(eh).padStart(2,'0') + ':' + String(em).padStart(2,'0');
+            
+            var msg = '🌸 *新预约通知* 🌸\n\n' +
+                '━━━━━━━━━━━━━\n' +
+                '📋 *预约详情*\n' +
+                '━━━━━━━━━━━━━\n' +
+                '💆 项目：' + (apt.service_name || bookingDraft.service_name) + '\n' +
+                '💰 价格：$' + (apt.price || bookingDraft.price) + '\n' +
+                '⏱️ 时长：' + (apt.duration || bookingDraft.duration) + '分钟\n' +
+                '🕐 时间段：' + tDisplay + ' - ' + endTime + '\n' +
+                '📅 日期：' + (apt.date || apt.appointment_date || bookingDraft.date) + '\n' +
+                '👩 美容师：' + (apt.employee_name || bookingDraft.employee_name) + '\n' +
+                '\n━━━━━━━━━━━━━\n' +
+                '🙋 *顾客信息*\n' +
+                '━━━━━━━━━━━━━\n' +
+                '📛 称呼：' + (apt.client_name || '') + '\n' +
+                '📞 电话：' + (apt.client_phone || '') + '\n' +
+                '\n请确认预约，谢谢！🙏';
+            
+            setTimeout(function() {
+                window.open('https://wa.me/' + boss + '?text=' + encodeURIComponent(msg), '_blank');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
